@@ -1,5 +1,6 @@
 package com.example.webkit640.entity;
 
+
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,44 +8,37 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @Entity
-public class Applicant {
+@Data
+public class Counsel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private int id;
 
     @NotNull
-    private String application;
-
-    private boolean isSelect;
-
-    private boolean isApply;
+    private String counselType;
 
     @NotNull
-    private String major;
+    private String content;
 
     @NotNull
-    private String school;
+    private String progressStatus;
 
     @NotNull
-    private String schoolNum;
+    private int traineeId;
 
     @NotNull
-    @OneToOne
-    @JoinColumn(name = "memberId")
-    private Member member;
-
-    @OneToOne(mappedBy = "applicant")
+    @ManyToOne
+    @JoinColumn(name = "traineeId")
     private Trainee trainee;
 
-    @OneToMany(mappedBy = "applicant")
-    private List<File> files = new ArrayList<>();
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "counselorId")
+    private Member member;
 }

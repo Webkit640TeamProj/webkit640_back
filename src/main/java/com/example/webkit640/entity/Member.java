@@ -1,12 +1,11 @@
 package com.example.webkit640.entity;
 
 import com.sun.istack.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @NoArgsConstructor
@@ -19,13 +18,30 @@ public class Member {
     @Column
     private int id;
 
+    @NotNull
+    private String name;
+
+    @NotNull
     private String email;
 
+    @NotNull
     private String password;
 
+    @NotNull
     private String memberType;
 
     private String memberBelong;
+
+    @OneToOne(mappedBy = "member")
+    private Applicant applicant;
+
+    @OneToMany(mappedBy = "member")
+    private List<Counsel> counsels = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<Board> boards = new ArrayList<>();
+
+
 
 
 

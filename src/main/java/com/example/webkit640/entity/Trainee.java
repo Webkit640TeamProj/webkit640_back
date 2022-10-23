@@ -15,36 +15,26 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Entity
-public class Applicant {
+public class Trainee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private int id;
 
     @NotNull
-    private String application;
-
-    private boolean isSelect;
-
-    private boolean isApply;
-
-    @NotNull
-    private String major;
-
-    @NotNull
-    private String school;
-
-    @NotNull
-    private String schoolNum;
+    private String cardinal;
 
     @NotNull
     @OneToOne
-    @JoinColumn(name = "memberId")
-    private Member member;
+    @JoinColumn(name = "applicantId")
+    private Applicant applicant;
 
-    @OneToOne(mappedBy = "applicant")
-    private Trainee trainee;
+    @OneToMany(mappedBy = "trainee")
+    private List<Attend> attends = new ArrayList<>();
 
-    @OneToMany(mappedBy = "applicant")
-    private List<File> files = new ArrayList<>();
+    @OneToOne(mappedBy = "trainee")
+    private Employment employment;
+
+    @OneToMany(mappedBy = "trainee")
+    private List<Counsel> counsels = new ArrayList<>();
 }
