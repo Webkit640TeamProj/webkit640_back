@@ -1,4 +1,4 @@
-package com.example.webkit640.entity;
+package com.example.webkit640.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ResponseDTO<T> {
+public class OauthResponseDTO<T> {
     private boolean isUser;
     private String error;
     private List<T> data;
