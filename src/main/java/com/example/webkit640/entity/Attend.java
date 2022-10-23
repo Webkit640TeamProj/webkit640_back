@@ -10,41 +10,35 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @Entity
-public class Applicant {
+@Data
+public class Attend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private int id;
 
     @NotNull
-    private String application;
+    private String attendType;
 
-    private boolean isSelect;
-
-    private boolean isApply;
+    private String exceptionReason;
 
     @NotNull
-    private String major;
+    private String attendYear;
 
     @NotNull
-    private String school;
+    private String attendMonth;
 
     @NotNull
-    private String schoolNum;
+    private String attendTime;
 
     @NotNull
-    @OneToOne
-    @JoinColumn(name = "memberId")
-    private Member member;
-
-    @OneToOne(mappedBy = "applicant")
+    @ManyToOne
+    @JoinColumn(name = "traineeId")
     private Trainee trainee;
 
-    @OneToMany(mappedBy = "applicant")
-    private List<File> files = new ArrayList<>();
 }

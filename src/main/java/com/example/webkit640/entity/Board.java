@@ -13,38 +13,37 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @Entity
-public class Applicant {
+@Data
+public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private int id;
 
     @NotNull
-    private String application;
-
-    private boolean isSelect;
-
-    private boolean isApply;
+    private String title;
 
     @NotNull
-    private String major;
+    private String content;
 
     @NotNull
-    private String school;
+    private String boardType;
+
+    private boolean isAdd;
 
     @NotNull
-    private String schoolNum;
-
-    @NotNull
-    @OneToOne
-    @JoinColumn(name = "memberId")
+    @ManyToOne
+    @JoinColumn(name = "writerId")
     private Member member;
 
-    @OneToOne(mappedBy = "applicant")
-    private Trainee trainee;
+    @ManyToOne
+    @JoinColumn(name = "replyId")
+    private Board board;
 
-    @OneToMany(mappedBy = "applicant")
+    @OneToMany(mappedBy = "board")
+    private List<Board> boards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board")
     private List<File> files = new ArrayList<>();
 }
