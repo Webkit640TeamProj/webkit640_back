@@ -34,11 +34,13 @@ public class Board {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "writerId")
+    //@JoinColumn(name = "writerId")
+    @JoinColumn
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "replyId")
+    //@JoinColumn(name = "replyId")
+    @JoinColumn
     private Board board;
 
     @OneToMany(mappedBy = "board")

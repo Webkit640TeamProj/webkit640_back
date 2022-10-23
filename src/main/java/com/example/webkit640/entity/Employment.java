@@ -22,7 +22,8 @@ public class Employment {
     private String company;
 
     @OneToOne
-    @JoinColumn(name = "traineeId")
+    //@JoinColumn(name = "traineeId")
+    @JoinColumn
     @NotNull
     private Trainee trainee;
 }

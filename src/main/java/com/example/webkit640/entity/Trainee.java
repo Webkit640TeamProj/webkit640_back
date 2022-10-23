@@ -18,7 +18,6 @@ import java.util.List;
 public class Trainee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
     private int id;
 
     @NotNull
@@ -26,7 +25,8 @@ public class Trainee {
 
     @NotNull
     @OneToOne
-    @JoinColumn(name = "applicantId")
+    //@JoinColumn(name = "applicantId")
+    @JoinColumn
     private Applicant applicant;
 
     @OneToMany(mappedBy = "trainee")

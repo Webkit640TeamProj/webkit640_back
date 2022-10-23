@@ -30,10 +30,12 @@ public class File {
     private String fileType;
 
     @ManyToOne
-    @JoinColumn(name = "applicantId")
+    //@JoinColumn(name = "applicantId")
+    @JoinColumn
     private Applicant applicant;
 
     @ManyToOne
-    @JoinColumn(name = "boardId")
+    //@JoinColumn(name = "boardId")
+    @JoinColumn
     private Board board;
 }

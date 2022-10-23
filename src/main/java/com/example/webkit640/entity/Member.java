@@ -34,17 +34,11 @@ public class Member {
 
     @OneToOne(mappedBy = "member")
     private Applicant applicant;
-
-    @OneToMany(mappedBy = "member")
-    private List<Counsel> counsels = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member")
-    private List<Board> boards = new ArrayList<>();
-
-
-
-
-
-
+//
+//    @OneToMany(mappedBy = "member")
+//    private List<Counsel> counsels = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "member")
+//    private List<Board> boards = new ArrayList<>();
 
 }
