@@ -10,7 +10,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Employment {
+public class Employment extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
