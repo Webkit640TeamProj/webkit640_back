@@ -29,8 +29,8 @@ public class Trainee extends DateAudit {
     @JoinColumn
     private Applicant applicant;
 
-    @OneToMany(mappedBy = "trainee", fetch = FetchType.EAGER)
-    private List<Attend> attends = new ArrayList<>();
+//    @OneToMany(mappedBy = "trainee", fetch = FetchType.EAGER)
+//    private List<Attend> attends = new ArrayList<>();
 
     @OneToOne(mappedBy = "trainee", fetch = FetchType.EAGER)
     private Employment employment;

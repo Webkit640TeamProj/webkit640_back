@@ -46,6 +46,6 @@ public class Board extends DateAudit {
     @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
     private List<Board> boards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
-    private List<FileEntity> files = new ArrayList<>();
+//    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
+//    private List<FileEntity> files = new ArrayList<>();
 }

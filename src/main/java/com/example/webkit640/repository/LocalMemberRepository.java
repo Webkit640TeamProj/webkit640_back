@@ -7,4 +7,5 @@ public interface LocalMemberRepository extends JpaRepository<Member,String>  {
     boolean existsMemberByEmail(String email);
     Member findByEmail(String email);
     Member findByEmailAndPassword(String email, String password);
+    Member findById(int id);
 }
