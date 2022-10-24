@@ -42,9 +42,9 @@ public class Applicant {
     @JoinColumn(name = "memberId")
     private Member member;
 
-    @OneToOne(mappedBy = "applicant")
-    private Trainee trainee;
-
-    @OneToMany(mappedBy = "applicant")
-    private List<File> files = new ArrayList<>();
+//    @OneToOne(mappedBy = "applicant")
+//    private Trainee trainee;
+//
+//    @OneToMany(mappedBy = "applicant")
+//    private List<File> files = new ArrayList<>();
 }

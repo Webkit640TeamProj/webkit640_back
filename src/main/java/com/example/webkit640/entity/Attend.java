@@ -38,7 +38,8 @@ public class Attend {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "traineeId")
+    //@JoinColumn(name = "traineeId")
+    @JoinColumn
     private Trainee trainee;
 
 }

@@ -1,6 +1,6 @@
 package com.example.webkit640.service;
 
-import com.example.webkit640.entity.KakaoDTO;
+import com.example.webkit640.dto.KakaoDTO;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import java.net.URL;
 public class KakaoOauthService {
     public String getKakaoAccessToken(String code) {
         String accessToken = "";
-        String refreshToken = "";
+        String refreshToken;
         String reqUrl = "https://kauth.kakao.com/oauth/token";
 
         try {
@@ -29,12 +29,11 @@ public class KakaoOauthService {
             conn.setDoOutput(true);
 
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
-            StringBuilder sb = new StringBuilder();
-            sb.append("grant_type=authorization_code");
-            sb.append("&client_id=ceff3c3a5ff411df946f1aa557ffc001");
-            sb.append("&redirect_uri=http://localhost:8080/oauth/kakao");
-            sb.append("&code="+code);
-            bw.write(sb.toString());
+            String sb = "grant_type=authorization_code" +
+                    "&client_id=ceff3c3a5ff411df946f1aa557ffc001" +
+                    "&redirect_uri=http://localhost:8080/auth/oauth/kakao" +
+                    "&code=" + code;
+            bw.write(sb);
             bw.flush();
 
             int responseCode = conn.getResponseCode();

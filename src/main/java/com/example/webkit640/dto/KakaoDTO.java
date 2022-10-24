@@ -1,4 +1,4 @@
-package com.example.webkit640.entity;
+package com.example.webkit640.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

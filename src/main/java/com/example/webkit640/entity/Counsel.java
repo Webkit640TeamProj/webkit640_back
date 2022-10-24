@@ -17,7 +17,6 @@ import javax.persistence.*;
 public class Counsel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
     private int id;
 
     @NotNull
@@ -29,16 +28,18 @@ public class Counsel {
     @NotNull
     private String progressStatus;
 
-    @NotNull
-    private int traineeId;
+//    @NotNull
+//    private int traineeId;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "traineeId")
+    //@JoinColumn(name = "traineeId")
+    @JoinColumn
     private Trainee trainee;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "counselorId")
+    //@JoinColumn(name = "counselorId")
+    @JoinColumn
     private Member member;
 }
