@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Entity
-public class Member {
+public class Member extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -32,7 +32,7 @@ public class Member {
 
     private String memberBelong;
 
-    @OneToOne(mappedBy = "member")
+    @OneToOne(mappedBy = "member", fetch = FetchType.EAGER)
     private Applicant applicant;
 //
 //    @OneToMany(mappedBy = "member")

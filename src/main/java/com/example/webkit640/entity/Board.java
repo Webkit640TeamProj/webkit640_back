@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Data
-public class Board {
+public class Board extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -43,9 +43,9 @@ public class Board {
     @JoinColumn
     private Board board;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
     private List<Board> boards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board")
-    private List<File> files = new ArrayList<>();
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
+    private List<FileEntity> files = new ArrayList<>();
 }

@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Data
-public class Attend {
+public class Attend extends DateAudit{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column

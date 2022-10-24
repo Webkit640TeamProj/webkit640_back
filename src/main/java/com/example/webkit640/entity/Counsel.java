@@ -14,7 +14,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Entity
 @Data
-public class Counsel {
+public class Counsel extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
