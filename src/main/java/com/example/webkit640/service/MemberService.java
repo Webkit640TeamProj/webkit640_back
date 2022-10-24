@@ -28,4 +28,8 @@ public class MemberService {
     public Member getByCredentials(final String email, final String password) {
         return localUserRepository.findByEmailAndPassword(email,password);
     }
+
+    public Member findByid(int id) {
+        return localUserRepository.findById(id);
+    }
 }

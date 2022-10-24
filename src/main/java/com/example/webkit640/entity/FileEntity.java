@@ -3,6 +3,7 @@ package com.example.webkit640.entity;
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Data
 public class FileEntity extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
