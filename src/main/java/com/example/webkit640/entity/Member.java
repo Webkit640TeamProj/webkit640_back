@@ -33,6 +33,8 @@ public class Member extends DateAudit {
 
     private String memberBelong;
 
+    private boolean isAdmin;
+
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
     private Applicant applicant;
 

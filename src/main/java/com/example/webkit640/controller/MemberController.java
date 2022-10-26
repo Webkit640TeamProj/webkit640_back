@@ -2,6 +2,8 @@ package com.example.webkit640.controller;
 
 import com.example.webkit640.config.TokenProvider;
 import com.example.webkit640.dto.LoginDTO;
+import com.example.webkit640.dto.request.MemberRequestDTO;
+import com.example.webkit640.dto.response.MemberResponseDTO;
 import com.example.webkit640.dto.response.ResponseDTO;
 import com.example.webkit640.dto.SignUpDTO;
 import com.example.webkit640.entity.Member;
@@ -9,6 +11,7 @@ import com.example.webkit640.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ public class MemberController {
                         .memberType(userDTO.getMemberType())
                         .name(userDTO.getName())
                         .applicant(null)
+                        .isAdmin(false)
                         .password(userDTO.getPassword())
                         .build();
                 Member registeredMember = userService.createMember(member);
@@ -82,5 +86,33 @@ public class MemberController {
             ResponseDTO response = ResponseDTO.builder().error("Email or Password Error").build();
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @GetMapping("/view-members")
+    public ResponseEntity<?> allMember(@AuthenticationPrincipal int id) {
+        List<Member> members = userService.getAllMembers();
+        List<MemberResponseDTO> dtos = new ArrayList<>();
+        for(Member member : members) {
+            MemberResponseDTO memberResponseDTO = MemberResponseDTO.builder()
+                    .email(member.getEmail())
+                    .isAdmin(member.isAdmin())
+                    .memberBelong(member.getMemberBelong())
+                    .memberType(member.getMemberType())
+                    .name(member.getName())
+                    .build();
+            dtos.add(memberResponseDTO);
+        }
+        ResponseDTO response = ResponseDTO.<MemberResponseDTO>builder().data(dtos).build();
+        return ResponseEntity.ok().body(response);
+    }
+    @PostMapping("/admin-change")
+    public ResponseEntity<?> changeAdmin(@AuthenticationPrincipal int id, @RequestBody MemberRequestDTO dto) {
+        Member member = userService.findByEmailData(dto.getEmail());
+        member.setAdmin(true);
+        userService.save(member);
+        List<String> data = new ArrayList<>();
+        data.add("OK");
+        ResponseDTO response = ResponseDTO.<String>builder().data(data).build();
+        return ResponseEntity.ok().body(response);
     }
 }
