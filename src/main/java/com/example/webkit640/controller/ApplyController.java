@@ -178,35 +178,42 @@ public class ApplyController {
 
     @GetMapping("/all")
     public ResponseEntity<?> showAllApplicant(@AuthenticationPrincipal int id) {
-        List<Applicant> applicants = applyService.findAllApplicant();
-        List<ApplicantDTO> applicantDTOs = new ArrayList<>();
-        List<FileDTO> fileDTOs = new ArrayList<>();
-        for(Applicant temp : applicants) {
-            for (FileEntity file : temp.getFiles()) {
-                if(file.getFileType().equals("APPLY")) {
-                    FileDTO dto = FileDTO.builder()
-                            .fileExtension(file.getFileExtension())
-                            .fileName(file.getFileName())
-                            .filePath(file.getFilePath())
-                            .fileType(file.getFileType())
-                            .build();
-                    fileDTOs.add(dto);
+        Member adminMember = memberService.findByid(id);
+        if(adminMember.isAdmin()) {
+            List<Applicant> applicants = applyService.findAllApplicant();
+            List<ApplicantDTO> applicantDTOs = new ArrayList<>();
+            List<FileDTO> fileDTOs = new ArrayList<>();
+            for(Applicant temp : applicants) {
+                for (FileEntity file : temp.getFiles()) {
+                    if(file.getFileType().equals("APPLY")) {
+                        FileDTO dto = FileDTO.builder()
+                                .fileExtension(file.getFileExtension())
+                                .fileName(file.getFileName())
+                                .filePath(file.getFilePath())
+                                .fileType(file.getFileType())
+                                .build();
+                        fileDTOs.add(dto);
+                    }
                 }
+                ApplicantDTO dto = ApplicantDTO.builder()
+                        .name(temp.getName())
+                        .application(temp.getApplication())
+                        .isApply(temp.isApply())
+                        .isSelect(temp.isSelect())
+                        .schoolNumber(temp.getSchoolNum())
+                        .major(temp.getMajor())
+                        .school(temp.getSchool())
+                        .files(fileDTOs)
+                        .build();
+                applicantDTOs.add(dto);
+                fileDTOs = new ArrayList<>();
             }
-            ApplicantDTO dto = ApplicantDTO.builder()
-                    .application(temp.getApplication())
-                    .isApply(temp.isApply())
-                    .isSelect(temp.isSelect())
-                    .schoolNumber(temp.getSchoolNum())
-                    .major(temp.getMajor())
-                    .school(temp.getSchool())
-                    .files(fileDTOs)
-                    .build();
-            applicantDTOs.add(dto);
-            fileDTOs = new ArrayList<>();
+            ResponseDTO response = ResponseDTO.<ApplicantDTO>builder().data(applicantDTOs).build();
+            return ResponseEntity.ok().body(response);
+        } else {
+            ResponseDTO response = ResponseDTO.builder().error("NOT ADMIN").build();
+            return ResponseEntity.badRequest().body(response);
         }
-        ResponseDTO response = ResponseDTO.<ApplicantDTO>builder().data(applicantDTOs).build();
-        return ResponseEntity.ok().body(response);
     }
     @PostMapping("/select")
     public ResponseEntity<?> selectApplicant(@AuthenticationPrincipal int id, @RequestBody List<SelectApplicantDTO> dto) {
