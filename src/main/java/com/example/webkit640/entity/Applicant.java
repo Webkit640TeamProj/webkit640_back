@@ -1,10 +1,7 @@
 package com.example.webkit640.entity;
 
 import com.sun.istack.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,13 +10,17 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@Entity
+@Getter
+@Setter
+@Entity(name = "t_applicant")
 public class Applicant extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private int id;
+
+    @NotNull
+    private String name;
 
     @NotNull
     private String application;
@@ -38,13 +39,13 @@ public class Applicant extends DateAudit {
     private String schoolNum;
 
     @NotNull
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
     private Member member;
 
-//    @OneToOne(mappedBy = "applicant")
-//    private Trainee trainee;
-//
-//    @OneToMany(mappedBy = "applicant")
-//    private List<File> files = new ArrayList<>();
+    @OneToOne(mappedBy = "applicant", fetch = FetchType.LAZY)
+    private Trainee trainee;
+
+    @OneToMany(mappedBy = "applicant", fetch = FetchType.LAZY)
+    private List<FileEntity> files = new ArrayList<>();
 }

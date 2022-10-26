@@ -1,4 +1,4 @@
-package com.example.webkit640.dto;
+package com.example.webkit640.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,10 +8,9 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class ResponseDTO<T> {
-    private String error;
-    private List<T> data;
+public class SelectApplicantListDTO {
+    List<SelectApplicantDTO> saList;
 }

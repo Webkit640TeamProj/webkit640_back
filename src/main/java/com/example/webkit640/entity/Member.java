@@ -10,8 +10,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@Entity
+@Getter
+@Setter
+@Entity(name = "t_member")
 public class Member extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,13 +33,16 @@ public class Member extends DateAudit {
 
     private String memberBelong;
 
-    @OneToOne(mappedBy = "member", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
     private Applicant applicant;
-//
-//    @OneToMany(mappedBy = "member")
-//    private List<Counsel> counsels = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "member")
-//    private List<Board> boards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    private List<Counsel> counsels = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    private List<Board> boards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member",fetch = FetchType.LAZY)
+    private List<FileEntity> file;
 
 }
