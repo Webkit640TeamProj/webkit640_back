@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Entity
+@Entity(name = "t_trainee")
 public class Trainee extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,18 +23,16 @@ public class Trainee extends DateAudit {
     @NotNull
     private String cardinal;
 
-    @NotNull
-    @OneToOne
-    //@JoinColumn(name = "applicantId")
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Applicant applicant;
 
-//    @OneToMany(mappedBy = "trainee", fetch = FetchType.EAGER)
-//    private List<Attend> attends = new ArrayList<>();
+    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY)
+    private List<Attend> attends = new ArrayList<>();
 
-    @OneToOne(mappedBy = "trainee", fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     private Employment employment;
 
-    @OneToMany(mappedBy = "trainee", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY)
     private List<Counsel> counsels = new ArrayList<>();
 }

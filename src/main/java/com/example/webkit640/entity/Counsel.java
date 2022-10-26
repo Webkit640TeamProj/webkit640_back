@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "t_counsel")
 @Data
 public class Counsel extends DateAudit {
     @Id
@@ -32,14 +32,12 @@ public class Counsel extends DateAudit {
 //    private int traineeId;
 
     @NotNull
-    @ManyToOne
-    //@JoinColumn(name = "traineeId")
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "traineeId")
     private Trainee trainee;
 
     @NotNull
-    @ManyToOne
-    //@JoinColumn(name = "counselorId")
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "counselorId")
     private Member member;
 }

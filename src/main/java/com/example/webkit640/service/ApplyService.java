@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class ApplyService {
@@ -16,4 +17,14 @@ public class ApplyService {
     public Applicant saveApplicant(Applicant applicant) {
         return applicantRepository.save(applicant);
     }
+    public List<Applicant> findAllApplicant() {
+        return applicantRepository.findAll();
+    }
+
+    public Applicant getByMemberId(int id) {
+        return applicantRepository.findByMemberId(id);
+    }
+//    public Applicant findByApplicantOne(int memberId) {
+//        return applicantRepository.findByMember_Id(memberId);
+//    }
 }

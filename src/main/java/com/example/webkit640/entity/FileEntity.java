@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "t_file")
 @Data
 public class FileEntity extends DateAudit {
     @Id
@@ -31,13 +31,15 @@ public class FileEntity extends DateAudit {
     @NotNull
     private String fileType;
 
-    @ManyToOne
-    //@JoinColumn(name = "applicantId")
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "applicantId")
     private Applicant applicant;
 
-    @ManyToOne
-    //@JoinColumn(name = "boardId")
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "boardId")
     private Board board;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "memberId")
+    private Member member;
 }

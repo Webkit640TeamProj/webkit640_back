@@ -16,6 +16,9 @@ public class MemberService {
     public Boolean findByEmail(String email) {
         return localUserRepository.existsMemberByEmail(email);
     }
+    public Member findByEmailData(String email) {
+        return localUserRepository.findByEmail(email);
+    }
 
     public Member getByEmail(String email) {
         return localUserRepository.findByEmail(email);
@@ -31,5 +34,9 @@ public class MemberService {
 
     public Member findByid(int id) {
         return localUserRepository.findById(id);
+    }
+
+    public void save(Member modifyMember) {
+        localUserRepository.save(modifyMember);
     }
 }

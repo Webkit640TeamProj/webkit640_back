@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "t_empolyment")
 public class Employment extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,9 +21,8 @@ public class Employment extends DateAudit {
     @NotNull
     private String company;
 
-    @OneToOne
-    //@JoinColumn(name = "traineeId")
-    @JoinColumn
+    @OneToOne(mappedBy = "employment", fetch = FetchType.LAZY)
+    @JoinColumn(name = "traineeId")
     @NotNull
     private Trainee trainee;
 }

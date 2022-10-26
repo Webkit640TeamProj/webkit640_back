@@ -1,18 +1,17 @@
-package com.example.webkit640.dto;
+package com.example.webkit640.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-@Data
 @Builder
+@Slf4j
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApplyDTO {
+@Data
+public class SaveTraineeResponseDTO {
     private String name;
-    private String major;
-    private String school;
-    private String schoolNumber;
-    private String application;
+    private String cardinal;
 }

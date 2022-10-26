@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "t_board")
 @Data
 public class Board extends DateAudit {
     @Id
@@ -33,19 +33,17 @@ public class Board extends DateAudit {
     private boolean isAdd;
 
     @NotNull
-    @ManyToOne
-    //@JoinColumn(name = "writerId")
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "writerId")
     private Member member;
 
-    @ManyToOne
-    //@JoinColumn(name = "replyId")
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "replyId")
     private Board board;
 
-    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
     private List<Board> boards = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER)
-//    private List<FileEntity> files = new ArrayList<>();
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    private List<FileEntity> files = new ArrayList<>();
 }

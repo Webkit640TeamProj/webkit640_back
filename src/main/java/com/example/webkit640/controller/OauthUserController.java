@@ -4,7 +4,7 @@ import com.example.webkit640.config.TokenProvider;
 import com.example.webkit640.dto.KakaoDTO;
 import com.example.webkit640.dto.LoginDTO;
 import com.example.webkit640.dto.OauthResponseDTO;
-import com.example.webkit640.dto.ResponseDTO;
+import com.example.webkit640.dto.response.ResponseDTO;
 import com.example.webkit640.entity.Member;
 import com.example.webkit640.service.KakaoOauthService;
 import com.example.webkit640.service.MemberService;

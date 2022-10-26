@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "t_attend")
 @Data
 public class Attend extends DateAudit{
     @Id
@@ -37,9 +37,9 @@ public class Attend extends DateAudit{
     private String attendTime;
 
     @NotNull
-    @ManyToOne
-    //@JoinColumn(name = "traineeId")
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "traineeId")
+    //@JoinColumn
     private Trainee trainee;
 
 }
