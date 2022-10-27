@@ -5,14 +5,19 @@ import com.example.webkit640.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface ApplicantRepository extends JpaRepository<Applicant, Integer> {
     Member findByMember(int memberId);
-
-    Applicant findBySchool(String school);
-
+    //Applicant findBySchool(String school);
     Applicant findBySchoolNum(String schoolNum);
-
-    Applicant findByMajor(String major);
+    //Applicant findByMajor(String major);
     Applicant findByMemberId(int id);
+    @Query("select t from t_applicant t where t.name = ?1")
+    List<Applicant> findByName(String name);
+    @Query("select t from t_applicant t where t.school = ?1")
+    List<Applicant> findBySchool(String school);
+    @Query("select t from t_applicant t where t.major = ?1")
+    List<Applicant> findByMajor(String major);
 
 }

@@ -105,7 +105,7 @@ public class MemberController {
         ResponseDTO response = ResponseDTO.<MemberResponseDTO>builder().data(dtos).build();
         return ResponseEntity.ok().body(response);
     }
-    @PostMapping("/admin-change")
+    @PutMapping("/admin-change")
     public ResponseEntity<?> changeAdmin(@AuthenticationPrincipal int id, @RequestBody MemberRequestDTO dto) {
         Member member = userService.findByEmailData(dto.getEmail());
         member.setAdmin(true);

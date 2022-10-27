@@ -28,6 +28,7 @@ public class Applicant extends DateAudit {
     private boolean isSelect;
 
     private boolean isApply;
+    private boolean isAdminApply;
 
     @NotNull
     private String major;

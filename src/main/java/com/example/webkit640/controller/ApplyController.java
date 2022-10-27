@@ -1,7 +1,9 @@
 package com.example.webkit640.controller;
 
 import com.example.webkit640.dto.*;
+import com.example.webkit640.dto.request.SearchApplicantRequestDTO;
 import com.example.webkit640.dto.request.SelectApplicantDTO;
+import com.example.webkit640.dto.response.ApplicantDataResponseDTO;
 import com.example.webkit640.dto.response.ResponseDTO;
 import com.example.webkit640.dto.response.SaveTraineeResponseDTO;
 import com.example.webkit640.entity.Applicant;
@@ -29,11 +31,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @RequestMapping("/apply")
 @Slf4j
+@CrossOrigin(origins = "*")
 public class ApplyController {
     private final FileService fileService;
     private final ApplyService applyService;
@@ -51,6 +55,59 @@ public class ApplyController {
         this.traineeService = traineeService;
     }
 
+    @PostMapping("/applicant-data")
+    public ResponseEntity<?> applicantDataSave(@RequestBody ApplyDTO applyDTO, @AuthenticationPrincipal int id) {
+        log.info(applyDTO.toString());
+        Member member = memberService.findByid(id);
+        log.info(member.toString());
+
+        Applicant resultApplicant = getResultApplicant(Applicant.builder()
+                .name(applyDTO.getName())
+                .application(applyDTO.getApplication())
+                .isApply(false)
+                .member(member)
+                .isSelect(false)
+                .major(applyDTO.getMajor())
+                .school(applyDTO.getSchool())
+                .schoolNum(applyDTO.getSchoolNumber()));
+        ApplicantDataResponseDTO dto = ApplicantDataResponseDTO.builder()
+                .application(resultApplicant.getApplication())
+                .major(resultApplicant.getMajor())
+                .name(resultApplicant.getName())
+                .school(resultApplicant.getSchool())
+                .schoolNumber(resultApplicant.getSchoolNum())
+                .build();
+        List<ApplicantDataResponseDTO> response = new ArrayList<>();
+        response.add(dto);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("applicant-application")
+    public ResponseEntity<?> applicantUploadFile(@AuthenticationPrincipal int id,@RequestParam("file") MultipartFile fileData) throws IOException {
+        if (fileData == null) {
+            return ResponseEntity.badRequest().body("ERROR");
+        }
+        if (!fileData.isEmpty()) {
+            log.info(fileData.getName());
+            Member member = memberService.findByid(id);
+            Applicant applicant = applyService.getByMemberId(member.getId());
+
+            FileEntity fileEntity = fileService.saveFile(fileData,applicant,member);
+            List<FileEntity> modifyMemberFile = member.getFile();
+            modifyMemberFile.add(fileEntity);
+            member.setFile(modifyMemberFile);
+            memberService.save(member);
+
+            applicant.setApply(true);
+            applyService.saveApplicant(applicant);
+
+            ResponseDTO response = getResponseDTO(modifyMemberFile, member, applicant);
+            return ResponseEntity.ok().body(response);
+        } else {
+            return ResponseEntity.badRequest().body("ERROR");
+        }
+    }
+
     @PostMapping("/applies")
     public ResponseEntity<?> uploadTest(@RequestPart MultipartFile file, @RequestPart ApplyDTO applyDTO, @AuthenticationPrincipal int id) throws IOException {
         log.info(applyDTO.toString());
@@ -61,6 +118,7 @@ public class ApplyController {
                 .name(applyDTO.getName())
                 .application(applyDTO.getApplication())
                 .isApply(false)
+                .isAdminApply(false)
                 .member(member)
                 .isSelect(false)
                 .major(applyDTO.getMajor())
@@ -91,6 +149,7 @@ public class ApplyController {
                 .id(resultApplicant.getId())
                 .schoolNum(resultApplicant.getSchoolNum())
                 .school(resultApplicant.getSchool())
+                .isAdminApply(false)
                 .isApply(true)
                 .member(resultApplicant.getMember())
                 .major(resultApplicant.getMajor())
@@ -156,23 +215,27 @@ public class ApplyController {
 
     @PostMapping("/download")
     public ResponseEntity<?> fileDownload(@AuthenticationPrincipal int id, @RequestBody ClientApplicantDTO dto) {
-        Member member = memberService.findByEmailData(dto.getEmail());
-        FileEntity file = fileService.findByMemberId(member);
-        try {
-            Resource resource = resourceLoader.getResource("file:"+file.getFilePath()+file.getFileName());
-            File binaryFile = resource.getFile();
+        if (memberService.findByEmail(dto.getEmail())) {
+            Member member = memberService.findByEmailData(dto.getEmail());
+            FileEntity file = fileService.findByMemberId(member);
+            try {
+                Resource resource = resourceLoader.getResource("file:"+file.getFilePath()+file.getFileName());
+                File binaryFile = resource.getFile();
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + binaryFile.getName() + "\"")
-                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(binaryFile.length()))
-                    .header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_OCTET_STREAM.toString())
-                    .body(resource);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + binaryFile.getName() + "\"")
+                        .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(binaryFile.length()))
+                        .header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_OCTET_STREAM.toString())
+                        .body(resource);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return ResponseEntity.badRequest().body(null);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            return ResponseEntity.badRequest().body("Not User");
         }
     }
 
@@ -196,9 +259,11 @@ public class ApplyController {
                     }
                 }
                 ApplicantDTO dto = ApplicantDTO.builder()
+                        .email(temp.getMember().getEmail())
                         .name(temp.getName())
                         .application(temp.getApplication())
                         .isApply(temp.isApply())
+                        .school(temp.getSchool())
                         .isSelect(temp.isSelect())
                         .schoolNumber(temp.getSchoolNum())
                         .major(temp.getMajor())
@@ -215,6 +280,50 @@ public class ApplyController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    @PostMapping("/trainee-select")
+    public ResponseEntity<?> traineeSelect(@AuthenticationPrincipal int id) {
+        List<SaveTraineeResponseDTO> traineeList = new ArrayList<>();
+        //                LocalDate ld = LocalDate.now();
+//                String year = String.valueOf(ld.getYear()%2022+1);
+//                Trainee trainee = Trainee.builder()
+//                        .applicant(modifyApplicant)
+//                        .cardinal(year)
+//                        .build();
+//                Trainee saveTrainee = traineeService.saveTrainee(trainee);
+//                log.info(saveTrainee.getCardinal());
+//
+//                SaveTraineeResponseDTO saveTraineeResponseDTO = SaveTraineeResponseDTO.builder()
+//                        .cardinal(saveTrainee.getCardinal())
+//                        .name(modifyApplicant.getName())
+//                        .build();
+//                traineeList.add(saveTraineeResponseDTO);
+        try {
+            Member member = memberService.findByid(id);
+            Applicant applicant = applyService.getByMemberId(id);
+            applicant.setSelect(true);
+            Applicant saveApplicant = applyService.saveApplicant(applicant);
+
+            String year = String.valueOf(LocalDate.now().getYear()%2022+1);
+            Trainee trainee = Trainee.builder()
+                    .applicant(applicant)
+                    .cardinal(year)
+                    .build();
+            Trainee saveTrainee = traineeService.saveTrainee(trainee);
+            log.info(saveTrainee.getCardinal());
+
+            SaveTraineeResponseDTO saveTraineeResponseDTO = SaveTraineeResponseDTO.builder()
+                    .cardinal(saveTrainee.getCardinal())
+                    .name(saveApplicant.getName())
+                    .build();
+            traineeList.add(saveTraineeResponseDTO);
+            ResponseDTO response = ResponseDTO.<SaveTraineeResponseDTO>builder().data(traineeList).build();
+            return ResponseEntity.ok().body(response);
+        } catch (NullPointerException ne) {
+            ResponseDTO response = ResponseDTO.builder().error("NOT USER").build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
     @PostMapping("/select")
     public ResponseEntity<?> selectApplicant(@AuthenticationPrincipal int id, @RequestBody List<SelectApplicantDTO> dto) {
         log.info(dto.toString());
@@ -226,30 +335,59 @@ public class ApplyController {
             try {
                 member = memberService.findByEmailData(slicingData[1]);
                 Applicant applicant = applyService.getByMemberId(member.getId());
-                applicant.setSelect(true);
+                applicant.setAdminApply(true);
                 Applicant modifyApplicant = applyService.saveApplicant(applicant);
                 log.info(String.valueOf(modifyApplicant.isSelect()));
 
-
-                LocalDate ld = LocalDate.now();
-                String year = String.valueOf(ld.getYear()%2022+1);
-                Trainee trainee = Trainee.builder()
-                        .applicant(modifyApplicant)
-                        .cardinal(year)
-                        .build();
-                Trainee saveTrainee = traineeService.saveTrainee(trainee);
-                log.info(saveTrainee.getCardinal());
-
-                SaveTraineeResponseDTO saveTraineeResponseDTO = SaveTraineeResponseDTO.builder()
-                        .cardinal(saveTrainee.getCardinal())
+                ApplicantDTO result = ApplicantDTO.builder()
+                        .email(member.getEmail())
+                        .isApply(modifyApplicant.isApply())
+                        .isSelect(modifyApplicant.isSelect())
+                        .schoolNumber(modifyApplicant.getSchoolNum())
+                        .major(modifyApplicant.getMajor())
+                        .application(modifyApplicant.getApplication())
                         .name(modifyApplicant.getName())
+                        .school(modifyApplicant.getSchool())
                         .build();
-                traineeList.add(saveTraineeResponseDTO);
+                List<ApplicantDTO> res = new ArrayList<>();
+                res.add(result);
+                ResponseDTO response = ResponseDTO.<ApplicantDTO>builder().data(res).build();
+                return ResponseEntity.ok().body(response);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         ResponseDTO response = ResponseDTO.<SaveTraineeResponseDTO>builder().data(traineeList).build();
         return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/search-applicant")
+    public ResponseEntity<?> searchApplicant(@AuthenticationPrincipal int id, @RequestBody SearchApplicantRequestDTO dto) {
+        if (memberService.findByid(id).isAdmin()) {
+            List<ApplicantDTO> applicantDTOs = new ArrayList<>();
+            List<FileDTO> fileDTOs = new ArrayList<>();
+            List<Applicant> searchApplicant = applyService.getSearchApplicant(dto.getType(), dto.getKeyword());
+            if (searchApplicant.isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                        ResponseDTO.builder().error("EMPTY APPLICANT").build()
+                );
+            }
+            for (Applicant applicant : searchApplicant) {
+                for (FileEntity file : applicant.getFiles()) {
+                    fileDTOs.add(FileDTO.entityToDTO(file));
+                }
+                ApplicantDTO appDTO = ApplicantDTO.entityToDTO(applicant);
+                appDTO.setEmail(applicant.getMember().getEmail());
+                appDTO.setFiles(fileDTOs);
+                applicantDTOs.add(appDTO);
+                fileDTOs = new ArrayList<>();
+            }
+            ResponseDTO response = ResponseDTO.<ApplicantDTO>builder().data(applicantDTOs).build();
+            return ResponseEntity.ok().body(response);
+        } else {
+            ResponseDTO response = ResponseDTO.builder().error("NO ADMIN").build();
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }

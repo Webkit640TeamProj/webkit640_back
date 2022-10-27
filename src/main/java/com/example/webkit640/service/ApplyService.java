@@ -20,9 +20,17 @@ public class ApplyService {
     public List<Applicant> findAllApplicant() {
         return applicantRepository.findAll();
     }
-
     public Applicant getByMemberId(int id) {
         return applicantRepository.findByMemberId(id);
+    }
+    public List<Applicant> getSearchApplicant(String type, String keyword) {
+        if (type.equals("name")) {
+            return applicantRepository.findByName(keyword);
+        } else if (type.equals("school")) {
+            return applicantRepository.findBySchool(keyword);
+        } else {
+            return applicantRepository.findByMajor(keyword);
+        }
     }
 //    public Applicant findByApplicantOne(int memberId) {
 //        return applicantRepository.findByMember_Id(memberId);
