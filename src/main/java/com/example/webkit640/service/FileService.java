@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -37,23 +38,34 @@ public class FileService {
             return null;
         }
         File Folder = new File(fileDir);
+        LocalDate ld = LocalDate.now();
+        String year = Integer.toString(ld.getYear());
+        File yearFolder = new File(fileDir+year);
         if (!Folder.exists()) {
             try {
                 Folder.mkdir();
+                yearFolder.mkdir();
             } catch (Exception e) {
                 e.getStackTrace();
+            }
+        }
+        if (!yearFolder.exists()) {
+            try {
+                yearFolder.mkdir();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         log.info(fileDir);
         String originalName = files.getOriginalFilename();
         String extension = originalName.substring(originalName.lastIndexOf("."));
         String savedName = applicant.getMember().getEmail() + "_apply_" + extension;
-        String savedPath = fileDir + savedName;
+        String savedPath = fileDir+year+"/" + savedName;
         FileEntity dbFile = FileEntity.builder()
                 .applicant(applicant)
                 .fileExtension(extension)
                 .fileName(savedName)
-                .filePath(fileDir)
+                .filePath(fileDir+year+"/")
                 .fileType("APPLY")
                 .member(member)
                 .build();
@@ -90,11 +102,12 @@ public class FileService {
     }
 
     public String filesToZip() {
-        File deleteFile = new File("/Users/songmingyu/Webkit/WebkitApplicant.zip");
+        String year = Integer.toString(LocalDate.now().getYear()) + "/";
+        File deleteFile = new File("/Users/songmingyu/Webkit/"+year+"WebkitApplicant.zip");
         if (deleteFile.exists()) {
             deleteFile.delete();
         }
-        String where = "/Users/songmingyu/Webkit/";
+        String where = "/Users/songmingyu/Webkit/"+year;
         File file_ = new File(where);
         File[] fileList = file_.listFiles();
 
