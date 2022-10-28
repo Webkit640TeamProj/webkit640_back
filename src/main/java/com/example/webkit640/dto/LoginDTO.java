@@ -16,4 +16,5 @@ public class LoginDTO {
     private String memberBelong;
     private String token;
     private String password;
+    private boolean is_admin;
 }

@@ -23,6 +23,7 @@ public class ApplicantDTO {
     private String schoolNumber;
     private List<FileDTO> files;
     private String email;
+    private String schoolYear;
     public static ApplicantDTO entityToDTO(Applicant applicant) {
         return ApplicantDTO.builder()
                 .school(applicant.getSchool())
