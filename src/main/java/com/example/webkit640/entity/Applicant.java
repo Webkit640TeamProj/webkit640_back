@@ -38,6 +38,7 @@ public class Applicant extends DateAudit {
 
     @NotNull
     private String schoolNum;
+    private String schoolYear;
 
     @NotNull
     @OneToOne(fetch = FetchType.LAZY)

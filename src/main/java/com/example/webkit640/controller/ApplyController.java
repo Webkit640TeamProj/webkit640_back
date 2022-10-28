@@ -37,7 +37,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/apply")
 @Slf4j
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ApplyController {
     private final FileService fileService;
     private final ApplyService applyService;
@@ -67,6 +67,7 @@ public class ApplyController {
                 .isApply(false)
                 .member(member)
                 .isSelect(false)
+                .schoolYear(applyDTO.getSchoolYear())
                 .major(applyDTO.getMajor())
                 .school(applyDTO.getSchool())
                 .schoolNum(applyDTO.getSchoolNumber()));
@@ -76,6 +77,7 @@ public class ApplyController {
                 .name(resultApplicant.getName())
                 .school(resultApplicant.getSchool())
                 .schoolNumber(resultApplicant.getSchoolNum())
+                .schoolYear(resultApplicant.getSchoolYear())
                 .build();
         List<ApplicantDataResponseDTO> response = new ArrayList<>();
         response.add(dto);
@@ -83,16 +85,16 @@ public class ApplyController {
     }
 
     @PostMapping("applicant-application")
-    public ResponseEntity<?> applicantUploadFile(@AuthenticationPrincipal int id,@RequestParam("file") MultipartFile fileData) throws IOException {
-        if (fileData == null) {
+    public ResponseEntity<?> applicantUploadFile(@AuthenticationPrincipal int id,@RequestParam MultipartFile file) throws IOException {
+        if (file == null) {
             return ResponseEntity.badRequest().body("ERROR");
         }
-        if (!fileData.isEmpty()) {
-            log.info(fileData.getName());
+        if (!file.isEmpty()) {
+            log.info(file.getName());
             Member member = memberService.findByid(id);
             Applicant applicant = applyService.getByMemberId(member.getId());
 
-            FileEntity fileEntity = fileService.saveFile(fileData,applicant,member);
+            FileEntity fileEntity = fileService.saveFile(file,applicant,member);
             List<FileEntity> modifyMemberFile = member.getFile();
             modifyMemberFile.add(fileEntity);
             member.setFile(modifyMemberFile);
@@ -121,6 +123,7 @@ public class ApplyController {
                 .isAdminApply(false)
                 .member(member)
                 .isSelect(false)
+                .schoolYear(applyDTO.getSchoolYear())
                 .major(applyDTO.getMajor())
                 .school(applyDTO.getSchool())
                 .schoolNum(applyDTO.getSchoolNumber()));
@@ -150,6 +153,7 @@ public class ApplyController {
                 .schoolNum(resultApplicant.getSchoolNum())
                 .school(resultApplicant.getSchool())
                 .isAdminApply(false)
+                .schoolYear(resultApplicant.getSchoolYear())
                 .isApply(true)
                 .member(resultApplicant.getMember())
                 .major(resultApplicant.getMajor())
@@ -268,6 +272,7 @@ public class ApplyController {
                         .schoolNumber(temp.getSchoolNum())
                         .major(temp.getMajor())
                         .school(temp.getSchool())
+                        .schoolYear(temp.getSchoolYear())
                         .files(fileDTOs)
                         .build();
                 applicantDTOs.add(dto);
@@ -388,6 +393,22 @@ public class ApplyController {
         } else {
             ResponseDTO response = ResponseDTO.builder().error("NO ADMIN").build();
             return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/checkApplicant")
+    public ResponseEntity<?> checkApplicant(@AuthenticationPrincipal int id) {
+        Boolean checkApplicant = applyService.checkApplicant(memberService.findByid(id));
+        if (checkApplicant) {
+            List<String> res = new ArrayList<>();
+            res.add("exist user");
+            ResponseDTO response = ResponseDTO.builder().error("400").build();
+            return ResponseEntity.ok().body(response);
+        } else {
+            List<String> res = new ArrayList<>();
+            res.add("OK");
+            ResponseDTO response = ResponseDTO.<String>builder().data(res).build();
+            return ResponseEntity.ok().body(response);
         }
     }
 }

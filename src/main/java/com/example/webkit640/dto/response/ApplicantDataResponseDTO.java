@@ -15,4 +15,5 @@ public class ApplicantDataResponseDTO {
     private String schoolNumber;
     private String major;
     private String application;
+    private String schoolYear;
 }

@@ -1,6 +1,7 @@
 package com.example.webkit640.service;
 
 import com.example.webkit640.entity.Applicant;
+import com.example.webkit640.entity.Member;
 import com.example.webkit640.repository.ApplicantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ public class ApplyService {
         return applicantRepository.findByMemberId(id);
     }
     public List<Applicant> getSearchApplicant(String type, String keyword) {
+
+        //QueryDSL
         if (type.equals("name")) {
             return applicantRepository.findByName(keyword);
         } else if (type.equals("school")) {
@@ -31,6 +34,10 @@ public class ApplyService {
         } else {
             return applicantRepository.findByMajor(keyword);
         }
+    }
+
+    public Boolean checkApplicant(Member member) {
+        return applicantRepository.existsByMember_Id(member.getId());
     }
 //    public Applicant findByApplicantOne(int memberId) {
 //        return applicantRepository.findByMember_Id(memberId);

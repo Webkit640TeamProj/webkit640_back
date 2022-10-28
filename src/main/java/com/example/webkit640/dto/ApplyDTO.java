@@ -15,4 +15,5 @@ public class ApplyDTO {
     private String school;
     private String schoolNumber;
     private String application;
+    private String schoolYear;
 }

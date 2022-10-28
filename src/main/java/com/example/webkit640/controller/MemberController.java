@@ -70,6 +70,7 @@ public class MemberController {
             final String token = tokenProvider.create(member);
             final LoginDTO responseData = LoginDTO.builder()
                     .email(member.getEmail())
+                    .is_admin(member.isAdmin())
                     .token(token)
                     .memberType(member.getMemberType())
                     .memberBelong(member.getMemberBelong())
