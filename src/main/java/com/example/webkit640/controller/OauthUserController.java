@@ -21,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/auth/oauth")
 public class OauthUserController {
+
     private final KakaoOauthService kakaoOauthService;
     private final MemberService userService;
     private final TokenProvider tokenProvider;
@@ -51,6 +52,7 @@ public class OauthUserController {
                 final String token = tokenProvider.create(member); //토큰 생성
                 final LoginDTO responseUserDTO = LoginDTO.builder() //프론트로 반환할 DTO 생성
                         .email(member.getEmail())
+                        .name(member.getName())
                         .memberBelong(member.getMemberBelong())
                         .id(member.getId())
                         .token(token)

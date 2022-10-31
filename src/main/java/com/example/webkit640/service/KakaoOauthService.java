@@ -31,7 +31,7 @@ public class KakaoOauthService {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
             String sb = "grant_type=authorization_code" +
                     "&client_id=ceff3c3a5ff411df946f1aa557ffc001" +
-                    "&redirect_uri=http://localhost:3000/auth/oauth/kakao" +
+                    "&redirect_uri=http://localhost:3000/auth/oauth/kakao/" +
                     "&code=" + code;
             bw.write(sb);
             bw.flush();
