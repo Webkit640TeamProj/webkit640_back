@@ -32,7 +32,9 @@ public class FileService {
 
     @Autowired
     ResourceLoader resourceLoader;
-
+    public void modifyBoardFile(FileEntity fileEntity) {
+        fileRepository.save(fileEntity);
+    }
     public FileEntity saveFile(MultipartFile files, Applicant applicant, Member member) throws IOException {
         if (files.isEmpty()) {
             return null;
