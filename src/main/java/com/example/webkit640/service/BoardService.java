@@ -30,6 +30,19 @@ public class BoardService {
     public List<FileEntity> getEmptyMemberFileEntity(int memberId) {
         return fileRepository.findByMember_IdAndBoardIsNull(memberId);
     }
+
+    public List<Board> getBoardAll(String type) {
+        return boardRepository.findByBoardType(type);
+    }
+
+    public Board getBoardId(int boardId) {
+        return boardRepository.findById(boardId);
+    }
+
+    public Member getWriter(int memberId) {
+        return boardRepository.findByMember_Id(memberId);
+    }
+
     public FileEntity boardImageSave(MultipartFile file, Member member) throws IOException {
         String where = fileDir+"board";
         File file_ = new File(where);

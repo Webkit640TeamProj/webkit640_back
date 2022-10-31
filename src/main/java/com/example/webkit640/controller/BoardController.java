@@ -2,6 +2,8 @@ package com.example.webkit640.controller;
 
 import com.example.webkit640.dto.request.BoardRequestDTO;
 import com.example.webkit640.dto.response.BoardImageResponseDTO;
+import com.example.webkit640.dto.response.BoardInspectResponseDTO;
+import com.example.webkit640.dto.response.BoardListDataResponseDTO;
 import com.example.webkit640.entity.Board;
 import com.example.webkit640.entity.FileEntity;
 import com.example.webkit640.service.BoardService;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -75,5 +78,32 @@ public class BoardController {
         } catch (IOException ie) {
             throw new RuntimeException();
         }
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> getAllListData(@AuthenticationPrincipal int id, @RequestParam String type) {
+        List<Board> boards = boardService.getBoardAll(type);
+        List<BoardListDataResponseDTO> res = new ArrayList<>();
+        for (Board board : boards) {
+            BoardListDataResponseDTO dto = BoardListDataResponseDTO.builder()
+                    .id(board.getId())
+                    .writeDate(board.getCreateDate().toString())
+                    .title(board.getTitle())
+                    .writer(memberService.findByid(id).getName())
+                    .build();
+            res.add(dto);
+        }
+        return ResponseEntity.ok().body(res);
+    }
+    @GetMapping("/list/{boardId}")
+    public ResponseEntity<?> getInspectBoardData(@AuthenticationPrincipal int id, @PathVariable("boardId") int boardId) {
+        Board board = boardService.getBoardId(boardId);
+        BoardInspectResponseDTO dto = BoardInspectResponseDTO.builder()
+                .createDate(board.getCreateDate().toString())
+                .content(board.getContent())
+                .title(board.getTitle())
+                .writer(board.getMember().getName())
+                .build();
+        return ResponseEntity.ok().body(dto);
     }
 }
