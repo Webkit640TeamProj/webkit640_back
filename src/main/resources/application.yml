@@ -17,26 +17,26 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: create
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
 file:
   dir: /Users/songmingyu/Webkit/
 logging:
   pattern:
-    console: "%-5level %d{yyyy-MM-dd HH:mm:ss}[%thread] %logger[%method:%line] - %msg%n"
-    file: "%-4relative [%thread] %-5level %logger{35} - %msg%n"
+    console: "%highlight(%-5level) %green(%d{yyyy-MM-dd HH:mm:ss}) [%thread] %cyan(%logger%boldBlue([%method:%line])) - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} %-4relative [%thread] %-5level %logger{35} - %msg%n"
   logback:
     rollingpolicy:
       file-name-pattern: "${LOG_FILE}.%d{yyyy-MM-dd}_%i.zip"
       max-history: 7
-      max-file-size: 5KB
+      max-file-size: 500KB
       total-size-cap: 1MB
   file:
-    name: logs/log
+    name: logs/log.log
   level:
-    com.blog.tistory: info
+    com.example.webkit640: info
 
 

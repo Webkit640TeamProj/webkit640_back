@@ -73,11 +73,10 @@ public class FileService {
                 .build();
         files.transferTo(new File(savedPath));
         FileEntity savedFile = fileRepository.save(dbFile);
-        log.info(savedFile.toString());
         return savedFile;
     }
     public File downloadFile(String path) {
-        log.info(path);
+
         try {
             Resource resource = resourceLoader.getResource("file:"+fileDir+path);
             File file = resource.getFile();
@@ -92,7 +91,7 @@ public class FileService {
     }
 
     public FileEntity findByMemberId(Member member) {
-        log.info(Integer.toString(member.getId()));
+
         List<FileEntity> files = fileRepository.findByMember_Id(member.getId());
         FileEntity returnFile = null;
         for (FileEntity file : files) {

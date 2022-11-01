@@ -54,9 +54,6 @@ public class KakaoOauthService {
             accessToken = element.getAsJsonObject().get("access_token").getAsString();
             refreshToken = element.getAsJsonObject().get("refresh_token").getAsString();
 
-            log.info("access_token : " + accessToken);
-            log.info("refresh_token : " + refreshToken);
-
             br.close();
             bw.close();
         } catch (Exception e) {
@@ -77,7 +74,6 @@ public class KakaoOauthService {
             conn.setRequestProperty("Authorization","Bearer "+token);
 
             int responseCode = conn.getResponseCode();
-            log.info("Response Code : " + responseCode);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line = "";
@@ -86,7 +82,6 @@ public class KakaoOauthService {
             while ((line = br.readLine()) != null) {
                 result += line;
             }
-            log.info("response body : " + result);
 
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(result);

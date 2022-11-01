@@ -26,18 +26,20 @@ import java.util.List;
 @RestController
 public class BoardController {
 
-    @Autowired
-    MemberService memberService;
+    private final MemberService memberService;
+    private final BoardService boardService;
+    private final FileService fileService;
 
     @Autowired
-    BoardService boardService;
-
-    @Autowired
-    FileService fileService;
-
+    public BoardController(MemberService memberService, BoardService boardService, FileService fileService) {
+        this.memberService = memberService;
+        this.boardService = boardService;
+        this.fileService = fileService;
+    }
 
     @PostMapping("/save-board")
     public ResponseEntity<?> saveBoard(@AuthenticationPrincipal int id, @RequestBody BoardRequestDTO dto) {
+        log.info("ENTER SAVE BOARD - Writer : " + memberService.findByid(id));
         List<FileEntity> emptyMemberFileEntity = boardService.getEmptyMemberFileEntity(id);
         Board savedBoard = null;
         if (dto.getType().equals("notification")) {
@@ -62,26 +64,33 @@ public class BoardController {
         }
         savedBoard.setFiles(emptyMemberFileEntity);
         boardService.saveBoard(savedBoard);
+        log.info("LEAVE SAVE BOARD - Writer : " + memberService.findByid(id));
         return ResponseEntity.ok().body("ok");
     }
 
     @PostMapping("/save-image")
     public ResponseEntity<?> uploadImage(@AuthenticationPrincipal int id, @RequestParam("image")MultipartFile image) {
+        log.info("ENTER USER UPLOAD BOARD IMAGE - Writer : "+memberService.findByid(id).getEmail());
         try {
             FileEntity fileEntity = boardService.boardImageSave(image, memberService.findByid(id));
             if (fileEntity != null) {
                 BoardImageResponseDTO res = BoardImageResponseDTO.builder().path(fileEntity.getFilePath()+"/"+fileEntity.getFileName()).build();
+                log.info("LEAVE USER UPLOAD BOARD IMAGE - Writer : "+memberService.findByid(id).getEmail());
                 return ResponseEntity.ok().body(res);
             } else {
+                log.error("EXCEPTION USER UPLOAD BOARD IMAGE - Writer : "+memberService.findByid(id).getEmail());
                 throw new RuntimeException();
             }
         } catch (IOException ie) {
+            log.error("EXCEPTION USER UPLOAD BOARD IMAGE - Writer : "+memberService.findByid(id).getEmail());
+            log.error("EXCEPTION : "+ie.getStackTrace());
             throw new RuntimeException();
         }
     }
 
     @GetMapping("/list")
     public ResponseEntity<?> getAllListData(@AuthenticationPrincipal int id, @RequestParam String type) {
+        log.info("ENTER VIEW ALL BOARD - USER : "+memberService.findByid(id).getEmail());
         List<Board> boards = boardService.getBoardAll(type);
         List<BoardListDataResponseDTO> res = new ArrayList<>();
         for (Board board : boards) {
@@ -93,10 +102,12 @@ public class BoardController {
                     .build();
             res.add(dto);
         }
+        log.info("LEAVE VIEW ALL BOARD - USER : " + memberService.findByid(id).getEmail());
         return ResponseEntity.ok().body(res);
     }
     @GetMapping("/list/{boardId}")
     public ResponseEntity<?> getInspectBoardData(@AuthenticationPrincipal int id, @PathVariable("boardId") int boardId) {
+        log.info("ENTER INSPECT BOARD - ENTER URL : /list/"+boardId+ "USER : "+memberService.findByid(id).getEmail());
         Board board = boardService.getBoardId(boardId);
         BoardInspectResponseDTO dto = BoardInspectResponseDTO.builder()
                 .createDate(board.getCreateDate().toString())
@@ -104,6 +115,7 @@ public class BoardController {
                 .title(board.getTitle())
                 .writer(board.getMember().getName())
                 .build();
+        log.info("LEAVE INSPECT BOARD - LEAVE URL : /list/"+boardId+ "USER : "+memberService.findByid(id).getEmail());
         return ResponseEntity.ok().body(dto);
     }
 }
