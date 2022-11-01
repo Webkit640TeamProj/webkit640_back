@@ -31,7 +31,7 @@ public class KakaoOauthService {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
             String sb = "grant_type=authorization_code" +
                     "&client_id=ceff3c3a5ff411df946f1aa557ffc001" +
-                    "&redirect_uri=http://localhost:3000/auth/oauth/kakao" +
+                    "&redirect_uri=http://localhost:3000/auth/oauth/kakao/" +
                     "&code=" + code;
             bw.write(sb);
             bw.flush();
@@ -54,9 +54,6 @@ public class KakaoOauthService {
             accessToken = element.getAsJsonObject().get("access_token").getAsString();
             refreshToken = element.getAsJsonObject().get("refresh_token").getAsString();
 
-            log.info("access_token : " + accessToken);
-            log.info("refresh_token : " + refreshToken);
-
             br.close();
             bw.close();
         } catch (Exception e) {
@@ -77,7 +74,6 @@ public class KakaoOauthService {
             conn.setRequestProperty("Authorization","Bearer "+token);
 
             int responseCode = conn.getResponseCode();
-            log.info("Response Code : " + responseCode);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line = "";
@@ -86,7 +82,6 @@ public class KakaoOauthService {
             while ((line = br.readLine()) != null) {
                 result += line;
             }
-            log.info("response body : " + result);
 
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(result);

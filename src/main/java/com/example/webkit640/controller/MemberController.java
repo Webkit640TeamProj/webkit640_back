@@ -23,15 +23,21 @@ import java.util.List;
 @RestController
 @RequestMapping("/auth")
 public class MemberController {
+    private final MemberService userService;
+    private final TokenProvider tokenProvider;
+
     @Autowired
-    private MemberService userService;
-    @Autowired
-    private TokenProvider tokenProvider;
+    public MemberController(MemberService userService, TokenProvider tokenProvider) {
+        this.userService = userService;
+        this.tokenProvider = tokenProvider;
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignUpDTO userDTO) {
         try {
             Member checkMember = userService.findByEmailData(userDTO.getEmail());
             if (checkMember == null) {
+                log.info("Enter Register User");
                 Member member = Member.builder()
                         .email(userDTO.getEmail())
                         .memberBelong(userDTO.getMemberBelong())
@@ -42,9 +48,7 @@ public class MemberController {
                         .password(userDTO.getPassword())
                         .build();
                 Member registeredMember = userService.createMember(member);
-                /*
-                 * TODO: [송민규]: 계정 생성 로그 추가 필요
-                 */
+                log.info("Create User : "+member.getEmail());
                 List<HashMap<String,String>> response = new ArrayList<>();
                 HashMap<String,String> data = new HashMap<>();
                 data.put("responseCode","200");
@@ -52,12 +56,15 @@ public class MemberController {
                 response.add(data);
 
                 ResponseDTO responseDTO = ResponseDTO.<HashMap<String,String>>builder().data(response).build();
+                log.info("SIGN-UP END");
                 return ResponseEntity.ok().body(responseDTO);
             } else {
-             ResponseDTO responseDTO = ResponseDTO.builder().error("exist user").build();
-             return ResponseEntity.badRequest().body(responseDTO);
+                log.info("EXIST USER" + checkMember.getEmail());
+                ResponseDTO responseDTO = ResponseDTO.builder().error("exist user").build();
+                return ResponseEntity.badRequest().body(responseDTO);
             }
         } catch (Exception e) {
+            log.error("SIGN-UP Exception: "+e.getMessage());
             ResponseDTO response = ResponseDTO.builder().error(e.getMessage()).build();
             return ResponseEntity.badRequest().body(response);
         }
@@ -65,6 +72,7 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginDTO loginDTO) {
+        log.info("ENTER LOGIN CONTROLLER");
         Member member = userService.getByCredentials(loginDTO.getEmail(), loginDTO.getPassword());
         if (member != null) {
             final String token = tokenProvider.create(member);
@@ -75,15 +83,14 @@ public class MemberController {
                     .memberType(member.getMemberType())
                     .memberBelong(member.getMemberBelong())
                     .build();
-            /**
-             * TODO: [송민규], 계정 생성 로그 추가 로직 필요함
-             */
-            log.info("LOGIN-SUCCESS");
+            log.info("LOGIN-SUCCESS : "+member.getEmail());
             List<LoginDTO> datalist = new ArrayList<>();
             datalist.add(responseData);
             ResponseDTO response = ResponseDTO.<LoginDTO>builder().data(datalist).build();
+            log.info("LEAVE LOGIN CONTROLLER");
             return ResponseEntity.ok().body(response);
         } else {
+            log.error("LOGIN CONTROLLER ERROR");
             ResponseDTO response = ResponseDTO.builder().error("Email or Password Error").build();
             return ResponseEntity.badRequest().body(response);
         }
@@ -91,6 +98,7 @@ public class MemberController {
 
     @GetMapping("/view-members")
     public ResponseEntity<?> allMember(@AuthenticationPrincipal int id) {
+        log.info("ENTER VIEW ALL MEMBERS - Accessor : "+ userService.findByid(id).getEmail());
         List<Member> members = userService.getAllMembers();
         List<MemberResponseDTO> dtos = new ArrayList<>();
         for(Member member : members) {
@@ -104,16 +112,19 @@ public class MemberController {
             dtos.add(memberResponseDTO);
         }
         ResponseDTO response = ResponseDTO.<MemberResponseDTO>builder().data(dtos).build();
+        log.info("LEAVE VIEW ALL MEMBERRS - Accessor : "+userService.findByid(id).getEmail());
         return ResponseEntity.ok().body(response);
     }
     @PutMapping("/admin-change")
     public ResponseEntity<?> changeAdmin(@AuthenticationPrincipal int id, @RequestBody MemberRequestDTO dto) {
+        log.info("ENTER ADMIN CHANGE - Accessor : "+userService.findByid(id).getEmail());
         Member member = userService.findByEmailData(dto.getEmail());
         member.setAdmin(true);
         userService.save(member);
         List<String> data = new ArrayList<>();
         data.add("OK");
         ResponseDTO response = ResponseDTO.<String>builder().data(data).build();
+        log.info("LEAVE ADMIN CHANGE - Accessor : "+userService.findByid(id).getEmail());
         return ResponseEntity.ok().body(response);
     }
 }
