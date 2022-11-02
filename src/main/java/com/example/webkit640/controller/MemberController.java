@@ -127,4 +127,14 @@ public class MemberController {
         log.info("LEAVE ADMIN CHANGE - Accessor : "+userService.findByid(id).getEmail());
         return ResponseEntity.ok().body(response);
     }
+    @GetMapping("/find-user")
+    public ResponseEntity<?> findUser(@AuthenticationPrincipal int id) {
+        log.info("ENTER /auth/find-user");
+        Member member = userService.findByid(id);
+        MemberResponseDTO dto = MemberResponseDTO.builder()
+                .isAdmin(member.isAdmin())
+                .build();
+        log.info("LEAVE /auth/find-user");
+        return ResponseEntity.ok().body(dto);
+    }
 }
