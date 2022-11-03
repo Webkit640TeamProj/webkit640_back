@@ -16,4 +16,5 @@ public class BoardListDataResponseDTO {
     private String title;
     private String writer;
     private String writeDate;
+    private int cnt;
 }

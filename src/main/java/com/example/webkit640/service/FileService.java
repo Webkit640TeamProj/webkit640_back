@@ -75,20 +75,6 @@ public class FileService {
         FileEntity savedFile = fileRepository.save(dbFile);
         return savedFile;
     }
-    public File downloadFile(String path) {
-
-        try {
-            Resource resource = resourceLoader.getResource("file:"+fileDir+path);
-            File file = resource.getFile();
-            return file;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public FileEntity findByMemberId(Member member) {
 

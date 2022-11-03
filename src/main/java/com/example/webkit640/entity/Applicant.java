@@ -2,6 +2,8 @@ package com.example.webkit640.entity;
 
 import com.sun.istack.NotNull;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity(name = "t_applicant")
+@DynamicInsert
 public class Applicant extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +28,13 @@ public class Applicant extends DateAudit {
     @NotNull
     private String application;
 
+    @ColumnDefault("false")
     private boolean isSelect;
 
+    @ColumnDefault("false")
     private boolean isApply;
+
+    @ColumnDefault("false")
     private boolean isAdminApply;
 
     @NotNull
@@ -48,6 +55,6 @@ public class Applicant extends DateAudit {
     @OneToOne(mappedBy = "applicant", fetch = FetchType.LAZY)
     private Trainee trainee;
 
-    @OneToMany(mappedBy = "applicant", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "applicant", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<FileEntity> files = new ArrayList<>();
 }

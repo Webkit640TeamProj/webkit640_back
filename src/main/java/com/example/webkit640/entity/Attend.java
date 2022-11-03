@@ -39,7 +39,6 @@ public class Attend extends DateAudit{
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "traineeId")
-    //@JoinColumn
     private Trainee trainee;
 
 }
