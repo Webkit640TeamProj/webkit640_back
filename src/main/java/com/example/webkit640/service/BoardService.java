@@ -75,4 +75,16 @@ public class BoardService {
     public Board saveBoard(Board board) {
         return boardRepository.save(board);
     }
+
+    public Board saveReply(Board board) { return boardRepository.save(board); }
+
+    public void deleteBoard(int id) {
+        if (boardRepository.existsById(id)) {
+            boardRepository.deleteById(id);
+        }
+        else {
+            throw new RuntimeException("id does not exist");
+        }
+        return;
+    }
 }

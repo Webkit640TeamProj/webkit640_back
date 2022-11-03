@@ -1,9 +1,13 @@
 package com.example.webkit640.controller;
 
 import com.example.webkit640.dto.request.BoardRequestDTO;
+import com.example.webkit640.dto.request.ModifiedBoardRequestDTO;
+import com.example.webkit640.dto.request.ModifiedReplyDTO;
+import com.example.webkit640.dto.request.ReplyRequestDTO;
 import com.example.webkit640.dto.response.BoardImageResponseDTO;
 import com.example.webkit640.dto.response.BoardInspectResponseDTO;
 import com.example.webkit640.dto.response.BoardListDataResponseDTO;
+import com.example.webkit640.dto.response.ReplyListDataResponseDTO;
 import com.example.webkit640.entity.Board;
 import com.example.webkit640.entity.FileEntity;
 import com.example.webkit640.service.BoardService;
@@ -99,6 +103,7 @@ public class BoardController {
                     .writeDate(board.getCreateDate().toString())
                     .title(board.getTitle())
                     .writer(memberService.findByid(id).getName())
+                    .cnt(board.getCnt())
                     .build();
             res.add(dto);
         }
@@ -109,13 +114,82 @@ public class BoardController {
     public ResponseEntity<?> getInspectBoardData(@AuthenticationPrincipal int id, @PathVariable("boardId") int boardId) {
         log.info("ENTER INSPECT BOARD - ENTER URL : /list/"+boardId+ "USER : "+memberService.findByid(id).getEmail());
         Board board = boardService.getBoardId(boardId);
+
+        List<ReplyListDataResponseDTO> replies = new ArrayList<>();
+        for (Board reply : board.getBoards()) {
+            ReplyListDataResponseDTO replyDTO = ReplyListDataResponseDTO.builder()
+                    .writer(reply.getMember().getName())
+                    .content(reply.getContent())
+                    .createDate(reply.getCreateDate().toString())
+                    .updateDate(reply.getUpdateDate().toString())
+                    .build();
+            replies.add(replyDTO);
+        }
+
         BoardInspectResponseDTO dto = BoardInspectResponseDTO.builder()
                 .createDate(board.getCreateDate().toString())
                 .content(board.getContent())
                 .title(board.getTitle())
                 .writer(board.getMember().getName())
+                .replies(replies)
                 .build();
+
+        int cnt = board.getCnt();
+        cnt+=1;
+        board.setCnt(cnt);
+        boardService.saveBoard(board);
         log.info("LEAVE INSPECT BOARD - LEAVE URL : /list/"+boardId+ "USER : "+memberService.findByid(id).getEmail());
         return ResponseEntity.ok().body(dto);
+    }
+
+    @PutMapping("/update-board/{boardId}")
+    public ResponseEntity<?> updateBoard(@AuthenticationPrincipal int id, @PathVariable("boardId") int boardId, @RequestBody ModifiedBoardRequestDTO dto) {
+        Board board = boardService.getBoardId(boardId);
+        if(board.getMember().getId() == id) {
+            board.setTitle(dto.getTitle());
+            board.setContent(dto.getContent());
+            boardService.saveBoard(board);
+        }
+        return ResponseEntity.ok().body("update ok");
+    }
+    @DeleteMapping("/delete-board/{boardId}")
+    public ResponseEntity<?> deleteBoard(@AuthenticationPrincipal int id, @PathVariable("boardId") int boardId ) {
+        Board board = boardService.getBoardId(boardId);
+        if(board.getMember().getId() == id) {
+            boardService.deleteBoard(boardId);
+        }
+        return ResponseEntity.ok().body("delete ok");
+    }
+
+    @PostMapping("/save-reply")
+    public ResponseEntity<?> saveReply(@AuthenticationPrincipal int id, @RequestBody ReplyRequestDTO dto) {
+        Board Reply = null;
+        if(dto.getType().equals("reply")) {
+            Reply = boardService.saveReply(Board.builder()
+                    .board(boardService.getBoardId(dto.getBoardId()))
+                    .member(memberService.findByid(id))
+                    .boardType(dto.getType())
+                    .content(dto.getContent())
+                    .title("reply")
+                    .isAdd(true)
+                    .build());
+        }
+        Board board = Reply.getBoard();
+        List<Board> saveReplies = board.getBoards();
+        saveReplies.add(Reply);
+        board.setBoards(saveReplies);
+        boardService.saveBoard(board);
+        boardService.saveReply(Reply);
+        return ResponseEntity.ok().body("add reply ok");
+    }
+
+    @PutMapping("/update-reply/{replyId}")
+    public ResponseEntity<?> updateReply(@AuthenticationPrincipal int id, @PathVariable("replyId") int replyId, @RequestBody ModifiedReplyDTO dto) {
+        Board Reply = boardService.getBoardId(replyId);
+        if(Reply.getMember().getId() == id) {
+            Reply.setContent(dto.getContent());
+            boardService.saveReply(Reply);
+        }
+        return ResponseEntity.ok().body("update reply ok");
     }
 }

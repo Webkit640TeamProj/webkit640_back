@@ -2,6 +2,8 @@ package com.example.webkit640.entity;
 
 import com.sun.istack.NotNull;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity(name = "t_member")
+@DynamicInsert
 public class Member extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,18 +36,19 @@ public class Member extends DateAudit {
 
     private String memberBelong;
 
+    @ColumnDefault("false")
     private boolean isAdmin;
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
     private Applicant applicant;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Counsel> counsels = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Board> boards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "member",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<FileEntity> file;
 
 }

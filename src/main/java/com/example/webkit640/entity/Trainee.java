@@ -27,12 +27,12 @@ public class Trainee extends DateAudit {
     @JoinColumn
     private Applicant applicant;
 
-    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Attend> attends = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     private Employment employment;
 
-    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Counsel> counsels = new ArrayList<>();
 }

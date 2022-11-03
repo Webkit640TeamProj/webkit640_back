@@ -28,9 +28,6 @@ public class Counsel extends DateAudit {
     @NotNull
     private String progressStatus;
 
-//    @NotNull
-//    private int traineeId;
-
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "traineeId")
