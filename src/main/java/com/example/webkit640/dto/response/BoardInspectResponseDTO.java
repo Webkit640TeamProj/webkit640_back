@@ -1,7 +1,6 @@
 package com.example.webkit640.dto.response;
 
 
-import com.example.webkit640.entity.Board;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

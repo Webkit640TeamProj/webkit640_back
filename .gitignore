@@ -26,6 +26,8 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+/src/main/resources/application-naver.yml
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

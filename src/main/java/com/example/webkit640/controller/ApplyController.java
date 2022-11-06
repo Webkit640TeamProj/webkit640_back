@@ -1,6 +1,9 @@
 package com.example.webkit640.controller;
 
-import com.example.webkit640.dto.*;
+import com.example.webkit640.dto.ApplicantDTO;
+import com.example.webkit640.dto.ApplyDTO;
+import com.example.webkit640.dto.ClientApplicantDTO;
+import com.example.webkit640.dto.FileDTO;
 import com.example.webkit640.dto.request.SearchApplicantRequestDTO;
 import com.example.webkit640.dto.request.SelectApplicantDTO;
 import com.example.webkit640.dto.response.ApplicantDataResponseDTO;
@@ -16,6 +19,7 @@ import com.example.webkit640.service.MemberService;
 import com.example.webkit640.service.TraineeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
@@ -31,13 +35,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @RequestMapping("/apply")
 @Slf4j
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = {"Content-Disposition"})
 public class ApplyController {
     private final FileService fileService;
     private final ApplyService applyService;
@@ -254,7 +257,54 @@ public class ApplyController {
             return ResponseEntity.badRequest().body("Not User");
         }
     }
+    @GetMapping("/applicant-read-data")
+    public ResponseEntity<?> readApplicant(@AuthenticationPrincipal int id, @RequestParam String year, @RequestParam String month) {
+        try {
+            log.info("ENTER /apply/applicant-read-data - Accessor: "+memberService.findByid(id).getEmail());
+        } catch (NullPointerException ne) {
+            ResponseDTO response = ResponseDTO.builder().error("NO USER").build();
+            log.info("EXCEPTION /apply/applicant-read-data - Accessor: "+memberService.findByid(id).getEmail());
+            return ResponseEntity.badRequest().body(response);
+        }
+        if (memberService.findByid(id).isAdmin()) {
+            List<Applicant> list = applyService.getDateApplicant(year+"-"+month);
+            List<ApplicantDTO> applicantDTOs = new ArrayList<>();
 
+            for (Applicant applicant : list) {
+                List<FileDTO> fileDTOs = new ArrayList<>();
+                for (FileEntity file : applicant.getFiles()) {
+                    FileDTO fileDTO = FileDTO.builder()
+                            .fileExtension(file.getFileExtension())
+                            .fileName(file.getFileName())
+                            .fileType(file.getFileType())
+                            .filePath(file.getFilePath())
+                            .build();
+                    fileDTOs.add(fileDTO);
+                }
+                ApplicantDTO dto = ApplicantDTO.builder()
+                        .schoolYear(applicant.getSchoolYear())
+                        .school(applicant.getSchool())
+                        .name(applicant.getName())
+                        .application(applicant.getApplication())
+                        .major(applicant.getMajor())
+                        .schoolNumber(applicant.getSchoolNum())
+                        .isSelect(applicant.isSelect())
+                        .isApply(applicant.isApply())
+                        .email(applicant.getMember().getEmail())
+                        .isAdminSelect(applicant.isAdminApply())
+                        .files(fileDTOs)
+                        .build();
+                applicantDTOs.add(dto);
+                fileDTOs = new ArrayList<>();
+            }
+            return ResponseEntity.ok().body(applicantDTOs);
+        } else {
+            ResponseDTO response = ResponseDTO.builder().error("NO ADMIN").build();
+            log.info("NO-ADMIN /apply/applicant-read-data - Accessor: "+memberService.findByid(id).getEmail());
+            return ResponseEntity.badRequest().body(response);
+        }
+
+    }
     @GetMapping("/all")
     public ResponseEntity<?> showAllApplicant(@AuthenticationPrincipal int id) {
         log.info("ENTER /apply/all - Accessor : "+memberService.findByid(id).getEmail());
@@ -280,6 +330,7 @@ public class ApplyController {
                         .name(temp.getName())
                         .application(temp.getApplication())
                         .isApply(temp.isApply())
+                        .isAdminSelect(temp.isAdminApply())
                         .school(temp.getSchool())
                         .isSelect(temp.isSelect())
                         .schoolNumber(temp.getSchoolNum())
@@ -337,14 +388,15 @@ public class ApplyController {
     public ResponseEntity<?> selectApplicant(@AuthenticationPrincipal int id, @RequestBody List<SelectApplicantDTO> dto) {
         log.info("ENTER /apply/select - Accessor : "+memberService.findByid(id).getEmail());
         List<SaveTraineeResponseDTO> traineeList = new ArrayList<>();
+        List<ApplicantDTO> res = new ArrayList<>();
+        log.info(dto.toString());
         for (SelectApplicantDTO temp : dto) {
-            String[] slicingData = temp.getNameEmail().split(" ");
-            log.info(slicingData[1]);
+            log.info(temp.getNameEmail());
             Member member = null;
             try {
-                member = memberService.findByEmailData(slicingData[1]);
+                member = memberService.findByEmailData(temp.getNameEmail());
                 Applicant applicant = applyService.getByMemberId(member.getId());
-                applicant.setAdminApply(true);
+                applicant.setAdminApply(!applicant.isAdminApply());
                 Applicant modifyApplicant = applyService.saveApplicant(applicant);
                 log.info(String.valueOf(modifyApplicant.isSelect()));
 
@@ -358,17 +410,15 @@ public class ApplyController {
                         .name(modifyApplicant.getName())
                         .school(modifyApplicant.getSchool())
                         .build();
-                List<ApplicantDTO> res = new ArrayList<>();
+
                 res.add(result);
-                ResponseDTO response = ResponseDTO.<ApplicantDTO>builder().data(res).build();
-                log.info("LEAVE /apply/select - Accessor : "+memberService.findByid(id).getEmail());
-                return ResponseEntity.ok().body(response);
             } catch (Exception e) {
                 log.error("EXCEPTION /apply/select - Accessor : "+memberService.findByid(id).getEmail());
                 log.error(e.getMessage());
             }
         }
-        ResponseDTO response = ResponseDTO.<SaveTraineeResponseDTO>builder().data(traineeList).build();
+        ResponseDTO response = ResponseDTO.<ApplicantDTO>builder().data(res).build();
+        log.info("LEAVE /apply/select - Accessor : "+memberService.findByid(id).getEmail());
         return ResponseEntity.ok().body(response);
     }
 
@@ -423,4 +473,6 @@ public class ApplyController {
             return ResponseEntity.ok().body(response);
         }
     }
+
+
 }
