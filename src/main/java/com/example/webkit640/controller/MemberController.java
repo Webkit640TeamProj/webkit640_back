@@ -82,6 +82,7 @@ public class MemberController {
                     .token(token)
                     .memberType(member.getMemberType())
                     .memberBelong(member.getMemberBelong())
+                    .name(member.getName())
                     .build();
             log.info("LOGIN-SUCCESS : "+member.getEmail());
             List<LoginDTO> datalist = new ArrayList<>();

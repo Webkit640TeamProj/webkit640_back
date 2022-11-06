@@ -35,10 +35,23 @@ public class FileService {
     public void modifyBoardFile(FileEntity fileEntity) {
         fileRepository.save(fileEntity);
     }
+
+    public File multipartToFile(MultipartFile file) {
+        try {
+            File resultFile = new File(file.getOriginalFilename());
+            file.transferTo(resultFile);
+            return resultFile;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     public FileEntity saveFile(MultipartFile files, Applicant applicant, Member member) throws IOException {
         if (files.isEmpty()) {
             return null;
         }
+
         File Folder = new File(fileDir);
         LocalDate ld = LocalDate.now();
         String year = Integer.toString(ld.getYear());
@@ -94,6 +107,7 @@ public class FileService {
         if (deleteFile.exists()) {
             deleteFile.delete();
         }
+
         String where = "/Users/songmingyu/Webkit/"+year;
         File file_ = new File(where);
         File[] fileList = file_.listFiles();

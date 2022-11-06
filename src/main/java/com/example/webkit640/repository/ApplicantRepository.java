@@ -23,4 +23,6 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Integer> {
     @Query("select (count(t) > 0) from t_applicant t where t.member.id = ?1")
     Boolean existsByMember_Id(int id);
 
+    List<Applicant> findAllByCreateDateContaining(String yearMonth);
+
 }

@@ -1,7 +1,6 @@
 package com.example.webkit640.dto;
 
 import com.example.webkit640.entity.Applicant;
-import com.example.webkit640.entity.FileEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +23,7 @@ public class ApplicantDTO {
     private List<FileDTO> files;
     private String email;
     private String schoolYear;
+    private boolean isAdminSelect;
     public static ApplicantDTO entityToDTO(Applicant applicant) {
         return ApplicantDTO.builder()
                 .school(applicant.getSchool())

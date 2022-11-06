@@ -1,7 +1,5 @@
 package com.example.webkit640.dto;
 
-import com.example.webkit640.entity.Applicant;
-import com.example.webkit640.entity.FileEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

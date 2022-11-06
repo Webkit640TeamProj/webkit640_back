@@ -42,4 +42,7 @@ public class ApplyService {
 //    public Applicant findByApplicantOne(int memberId) {
 //        return applicantRepository.findByMember_Id(memberId);
 //    }
+    public List<Applicant> getDateApplicant(String yearMonth) {
+        return applicantRepository.findAllByCreateDateContaining(yearMonth);
+    }
 }
