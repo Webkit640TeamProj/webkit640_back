@@ -10,16 +10,24 @@ import com.example.webkit640.dto.response.BoardListDataResponseDTO;
 import com.example.webkit640.dto.response.ReplyListDataResponseDTO;
 import com.example.webkit640.entity.Board;
 import com.example.webkit640.entity.FileEntity;
+import com.example.webkit640.entity.Member;
 import com.example.webkit640.service.BoardService;
 import com.example.webkit640.service.FileService;
 import com.example.webkit640.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +41,14 @@ public class BoardController {
     private final MemberService memberService;
     private final BoardService boardService;
     private final FileService fileService;
+    private final ResourceLoader resourceLoader;
 
     @Autowired
-    public BoardController(MemberService memberService, BoardService boardService, FileService fileService) {
+    public BoardController(MemberService memberService, BoardService boardService, FileService fileService, ResourceLoader resourceLoader) {
         this.memberService = memberService;
         this.boardService = boardService;
         this.fileService = fileService;
+        this.resourceLoader = resourceLoader;
     }
 
     @PostMapping("/save-board")
@@ -92,6 +102,75 @@ public class BoardController {
         }
     }
 
+    @PostMapping("/save-file/{boardId}")
+    public ResponseEntity<?> uploadFile(@AuthenticationPrincipal int id,@RequestParam MultipartFile file, @PathVariable("boardId") int boardId) throws IOException {
+        log.info("ENTER USER UPLOAD BOARD IMAGE - Writer : "+memberService.findByid(id).getEmail());
+        if (file == null) {
+            log.error("FILE ERROR /board/save-file -Accessor: "+memberService.findByid(id).getEmail());
+            return ResponseEntity.badRequest().body("ERROR");
+        }
+        if (!file.isEmpty()) {
+            Member member = memberService.findByid(id);
+            Board board = null;
+            List<Board> boards = boardService.getByWriter(id);
+            for (Board b : boards) {
+                if(b.getId() == boardId) {
+                    board = b;
+                }
+            }
+            FileEntity fileEntity = fileService.saveBoardFile(file, board, member);
+            List<FileEntity> modifyMemberFile = member.getFile();
+            modifyMemberFile.add(fileEntity);
+            member.setFile(modifyMemberFile);
+            memberService.save(member);
+
+            List<FileEntity> modifyBoardFile = board.getFiles();
+            modifyBoardFile.add(fileEntity);
+            board.setFiles(modifyBoardFile);
+            boardService.saveBoard(board);
+
+            log.info("LEAVE /board/save-file - Accessor: "+memberService.findByid(id).getEmail());
+            return ResponseEntity.ok().body("ok");
+        } else {
+            log.error("ERROR /board/save-file -Accessor: "+memberService.findByid(id).getEmail());
+            return ResponseEntity.badRequest().body("ERROR");
+        }
+    }
+
+    @PostMapping("/download/{boardId}")
+    public ResponseEntity<?> fileDownload(@RequestBody String fileName, @PathVariable("boardId") int boardId) {
+        try {
+            Board board = boardService.getBoardId(boardId);
+            FileEntity file = null;
+            List<FileEntity> files = fileService.findByBoardId(board);
+            for (FileEntity fe : files) {
+                if (fe.getFileName().equals(fileName)) {
+                    file = fe;
+                }
+            }
+
+            Resource resource = resourceLoader.getResource("file:"+file.getFilePath()+file.getFileName());
+            File binaryFile = resource.getFile();
+
+            //String encodeFileName = URLEncoder.encode(binaryFile.getName(),"UTF-8");
+            log.info("LEAVE /board/download");
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + binaryFile.getName() + "\"" )
+                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(binaryFile.length()))
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM.toString())
+                    .body(resource);
+
+        } catch (FileNotFoundException e) {
+            log.error("FILE NOT FOUND EXCEPTION /board/download");
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(null);
+        } catch (IOException e) {
+            log.error("FILE NOT FOUND EXCEPTION /board/download");
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @GetMapping("/list")
     public ResponseEntity<?> getAllListData(@AuthenticationPrincipal int id, @RequestParam String type) {
         log.info("ENTER VIEW ALL BOARD - USER : "+memberService.findByid(id).getEmail());
@@ -114,6 +193,11 @@ public class BoardController {
     public ResponseEntity<?> getInspectBoardData(@AuthenticationPrincipal int id, @PathVariable("boardId") int boardId) {
         log.info("ENTER INSPECT BOARD - ENTER URL : /list/"+boardId+ "USER : "+memberService.findByid(id).getEmail());
         Board board = boardService.getBoardId(boardId);
+        List<String> fileNames = new ArrayList<>();
+        List<FileEntity> files = fileService.findByBoardId(board);
+        for (FileEntity fe : files) {
+            fileNames.add(fe.getFileName());
+        }
 
         List<ReplyListDataResponseDTO> replies = new ArrayList<>();
         for (Board reply : board.getBoards()) {
@@ -128,6 +212,7 @@ public class BoardController {
 
         BoardInspectResponseDTO dto = BoardInspectResponseDTO.builder()
                 .createDate(board.getCreateDate().toString())
+                .fileNames(fileNames)
                 .content(board.getContent())
                 .title(board.getTitle())
                 .writer(board.getMember().getName())
@@ -192,4 +277,5 @@ public class BoardController {
         }
         return ResponseEntity.ok().body("update reply ok");
     }
+
 }

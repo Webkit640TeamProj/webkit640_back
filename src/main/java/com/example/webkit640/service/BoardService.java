@@ -39,10 +39,6 @@ public class BoardService {
         return boardRepository.findById(boardId);
     }
 
-    public Member getWriter(int memberId) {
-        return boardRepository.findByMember_Id(memberId);
-    }
-
     public FileEntity boardImageSave(MultipartFile file, Member member) throws IOException {
         String where = fileDir+"board";
         File file_ = new File(where);
@@ -86,5 +82,9 @@ public class BoardService {
             throw new RuntimeException("id does not exist");
         }
         return;
+    }
+
+    public List<Board> getByWriter(int writerId) {
+        return boardRepository.findByMember_Id(writerId);
     }
 }

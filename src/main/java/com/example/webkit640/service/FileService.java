@@ -1,6 +1,7 @@
 package com.example.webkit640.service;
 
 import com.example.webkit640.entity.Applicant;
+import com.example.webkit640.entity.Board;
 import com.example.webkit640.entity.FileEntity;
 import com.example.webkit640.entity.Member;
 import com.example.webkit640.repository.FileRepository;
@@ -103,7 +104,7 @@ public class FileService {
 
     public String filesToZip() {
         String year = Integer.toString(LocalDate.now().getYear()) + "/";
-        File deleteFile = new File("/Users/songmingyu/Webkit/"+year+"WebkitApplicant.zip");
+        File deleteFile = new File("C:\\Users\\rkdtmddn\\Desktop\\WebkitFile\\"+year+"WebkitApplicant.zip");
         if (deleteFile.exists()) {
             deleteFile.delete();
         }
@@ -150,4 +151,50 @@ public class FileService {
         }
         return where + "WebkitApplicant.zip";
     }
+
+    public FileEntity saveBoardFile(MultipartFile files, Board board, Member member) throws IOException {
+        if (files.isEmpty()) {
+            return null;
+        }
+        File Folder = new File(fileDir);
+        LocalDate ld = LocalDate.now();
+        String year = Integer.toString(ld.getYear());
+        File yearFolder = new File(fileDir+year+"board");
+        if (!Folder.exists()) {
+            try {
+                Folder.mkdir();
+                yearFolder.mkdir();
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
+        }
+        if (!yearFolder.exists()) {
+            try {
+                yearFolder.mkdir();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        log.info(fileDir);
+        String originalName = files.getOriginalFilename();
+        String extension = originalName.substring(originalName.lastIndexOf("."));
+        String savedPath = fileDir+year+"board/" + originalName;
+        FileEntity dbFile = FileEntity.builder()
+                .board(board)
+                .fileExtension(extension)
+                .fileName(originalName)
+                .filePath(fileDir+year+"board/")
+                .fileType("BOARD")
+                .member(member)
+                .build();
+        files.transferTo(new File(savedPath));
+        FileEntity savedFile = fileRepository.save(dbFile);
+        return savedFile;
+    }
+
+    public List<FileEntity> findByBoardId(Board board) {
+        List<FileEntity> files = fileRepository.findByBoard_Id(board.getId());
+        return files;
+    }
+
 }
