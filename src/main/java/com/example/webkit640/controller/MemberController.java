@@ -120,7 +120,7 @@ public class MemberController {
     public ResponseEntity<?> changeAdmin(@AuthenticationPrincipal int id, @RequestBody MemberRequestDTO dto) {
         log.info("ENTER ADMIN CHANGE - Accessor : "+userService.findByid(id).getEmail());
         Member member = userService.findByEmailData(dto.getEmail());
-        member.setAdmin(true);
+        member.setAdmin(!member.isAdmin());
         userService.save(member);
         List<String> data = new ArrayList<>();
         data.add("OK");
