@@ -17,6 +17,7 @@ public class BoardInspectResponseDTO {
     private String content;
     private String writer;
     private String createDate;
+    private List<String> fileNames;
     private List<ReplyListDataResponseDTO> replies;
 
 
