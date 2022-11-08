@@ -104,6 +104,7 @@ public class BoardController {
                     .title(board.getTitle())
                     .writer(memberService.findByid(id).getName())
                     .cnt(board.getCnt())
+                    .isAdd(board.isAdd())
                     .build();
             res.add(dto);
         }
