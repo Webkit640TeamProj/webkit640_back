@@ -44,7 +44,7 @@ public class WebSecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/*","/h2-console/**","/auth/**", "/board/download/**").permitAll()
+                .antMatchers("/*","/h2-console/**","/auth/**", "/board/download/**", "/imagePath/**").permitAll()
                 .anyRequest()
                 .authenticated();
         http.exceptionHandling()
