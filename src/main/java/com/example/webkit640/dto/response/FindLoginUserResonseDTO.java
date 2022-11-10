@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ReplyListDataResponseDTO {
-    private int id;
-    private String writer;
-    private String content;
-    private String createDate;
-    private String updateDate;
-
+public class FindLoginUserResonseDTO {
+    private String name;
+    private String email;
+    private Boolean admin;
 }

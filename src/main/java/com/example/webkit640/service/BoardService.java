@@ -67,7 +67,16 @@ public class BoardService {
                 .fileType("BOARD")
                 .build());
     }
-
+    public Board changeShowBoard(int id) {
+        Board board = null;
+        try {
+            board = boardRepository.findById(id);
+            board.setAdd(!board.isAdd());
+            return boardRepository.save(board);
+        } catch (NullPointerException ne) {
+            return null;
+        }
+    }
     public Board saveBoard(Board board) {
         return boardRepository.save(board);
     }
