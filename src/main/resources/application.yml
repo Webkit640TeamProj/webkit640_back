@@ -5,13 +5,14 @@ spring:
       max-request-size: 100MB
   h2:
     console:
-      enabled: true
+      enabled: false
       path: /h2-console
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/Webkit?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/Webkit?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
     username: root
-    password: root
+    #password: webkit640!@
+    password: alsrb!5606
   jpa:
     #database-platform: org.hibernate.dialect.H2Dialect
     generate-ddl: true
@@ -23,8 +24,14 @@ spring:
         format_sql: false
 
 file:
- dir: C:\Users\rkdtmddn\Desktop\WebkitFile\
-#  dir: /Users/songmingyu/Webkit/
+ #dir: C:\Users\rkdtmddn\Desktop\WebkitFile\
+  dir: /Users/songmingyu/Webkit/
+  #dir: /root/Webkit/
+  imageResourcePath: file:/Users/songmingyu/Webkit/uploadImage/
+  #imageResourcePath: file:/root/Webkit/uploadImage/
+  imageUploadPath: /Users/songmingyu/Webkit/uploadImage/
+  #imageUploadPath: /root/Webkit/uploadImage/
+  connectPath: /imagePath/**
 logging:
   pattern:
     console: "%highlight(%-5level) %green(%d{yyyy-MM-dd HH:mm:ss}) [%thread] %cyan(%logger%boldBlue([%method:%line])) - %msg%n"

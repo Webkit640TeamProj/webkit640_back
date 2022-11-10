@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -27,6 +28,8 @@ import java.util.zip.ZipOutputStream;
 public class FileService {
     @Value("${file.dir}")
     private String fileDir;
+    @Value("${file.imageUploadPath}")
+    private String imageUploadPath;
 
     @Autowired
     private FileRepository fileRepository;
@@ -104,12 +107,12 @@ public class FileService {
 
     public String filesToZip() {
         String year = Integer.toString(LocalDate.now().getYear()) + "/";
-        File deleteFile = new File("C:\\Users\\rkdtmddn\\Desktop\\WebkitFile\\"+year+"WebkitApplicant.zip");
+        File deleteFile = new File(fileDir+year+"WebkitApplicant.zip");
         if (deleteFile.exists()) {
             deleteFile.delete();
         }
 
-        String where = "/Users/songmingyu/Webkit/"+year;
+        String where = fileDir+year;
         File file_ = new File(where);
         File[] fileList = file_.listFiles();
 
@@ -159,7 +162,7 @@ public class FileService {
         File Folder = new File(fileDir);
         LocalDate ld = LocalDate.now();
         String year = Integer.toString(ld.getYear());
-        File yearFolder = new File(fileDir+year+"board");
+        File yearFolder = new File(fileDir+year+"/board");
         if (!Folder.exists()) {
             try {
                 Folder.mkdir();
@@ -178,12 +181,12 @@ public class FileService {
         log.info(fileDir);
         String originalName = files.getOriginalFilename();
         String extension = originalName.substring(originalName.lastIndexOf("."));
-        String savedPath = fileDir+year+"board/" + originalName;
+        String savedPath = fileDir+year+"/board/" + originalName;
         FileEntity dbFile = FileEntity.builder()
                 .board(board)
                 .fileExtension(extension)
                 .fileName(originalName)
-                .filePath(fileDir+year+"board/")
+                .filePath(fileDir+year+"/board/")
                 .fileType("BOARD")
                 .member(member)
                 .build();
@@ -197,4 +200,37 @@ public class FileService {
         return files;
     }
 
+    public String saveImage(MultipartFile files) throws IOException {
+        if (files.isEmpty()) {
+            return null;
+        }
+
+        File Folder = new File(imageUploadPath);
+        if (!Folder.exists()) {
+            try {
+                Folder.mkdir();
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
+        }
+        StringBuffer buffer = new StringBuffer();
+        Random random = new Random();
+
+        String chars[] = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,_".split(",");
+
+        for (int i=0 ; i<50; i++)
+        {
+            buffer.append(chars[random.nextInt(chars.length)]);
+        }
+
+        log.info(imageUploadPath);
+        String originalName = files.getOriginalFilename();
+        String extension = originalName.substring(originalName.lastIndexOf("."));
+        String savedName = buffer.toString() + extension;
+        String savedPath = imageUploadPath + savedName;
+
+        files.transferTo(new File(savedPath));
+
+        return "/imagePath/"+savedName;
+    }
 }

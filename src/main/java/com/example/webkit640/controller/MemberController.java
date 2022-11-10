@@ -3,6 +3,7 @@ package com.example.webkit640.controller;
 import com.example.webkit640.config.TokenProvider;
 import com.example.webkit640.dto.LoginDTO;
 import com.example.webkit640.dto.request.MemberRequestDTO;
+import com.example.webkit640.dto.response.FindLoginUserResonseDTO;
 import com.example.webkit640.dto.response.MemberResponseDTO;
 import com.example.webkit640.dto.response.ResponseDTO;
 import com.example.webkit640.dto.SignUpDTO;
@@ -136,6 +137,24 @@ public class MemberController {
                 .isAdmin(member.isAdmin())
                 .build();
         log.info("LEAVE /auth/find-user");
+        return ResponseEntity.ok().body(dto);
+    }
+
+    @GetMapping("/find-login-user")
+    public ResponseEntity<?> findLoginUser(@AuthenticationPrincipal int id) {
+        try {
+            log.info("ENTER /auth/find-login-user - Accessor : " + userService.findByid(id).getEmail());
+        } catch (NullPointerException ne) {
+            log.error("NULL EXCEPTION /auth/find-login-user - Accessor : " + userService.findByid(id).getEmail());
+            return ResponseEntity.badRequest().body("NULL USER");
+        }
+        Member member = userService.findByid(id);
+        FindLoginUserResonseDTO dto = FindLoginUserResonseDTO.builder()
+                .admin(member.isAdmin())
+                .email(member.getEmail())
+                .name(member.getName())
+                .build();
+        log.info("LEAVE /auth/find-login-user - Accessor : " + member.getEmail());
         return ResponseEntity.ok().body(dto);
     }
 }

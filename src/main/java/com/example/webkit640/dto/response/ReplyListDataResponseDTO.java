@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class ReplyListDataResponseDTO {
+    private int id;
     private String writer;
     private String content;
     private String createDate;

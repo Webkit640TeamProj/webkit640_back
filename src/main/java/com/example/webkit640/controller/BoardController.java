@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +80,7 @@ public class BoardController {
         savedBoard.setFiles(emptyMemberFileEntity);
         boardService.saveBoard(savedBoard);
         log.info("LEAVE SAVE BOARD - Writer : " + memberService.findByid(id));
-        return ResponseEntity.ok().body("ok");
+        return ResponseEntity.ok().body(savedBoard.getId());
     }
 
     @PostMapping("/save-image")
@@ -137,6 +138,22 @@ public class BoardController {
         }
     }
 
+    @PutMapping("/change-show")
+    public ResponseEntity<?> changeShow(@AuthenticationPrincipal int id, @RequestBody int boardId) {
+        try {
+            log.info("ENTER /board/change-show - Accessor : "+memberService.findByid(id).getEmail());
+        } catch (NullPointerException ne) {
+            log.info("EXCEPTION /board/change-show");
+            return ResponseEntity.badRequest().body("NO AUTH");
+        }
+        Board board = boardService.changeShowBoard(boardId);
+        if (board == null) {
+            log.info("BOARD NULL ERROR /board/change-show - Accessor : "+memberService.findByid(id).getEmail());
+            return ResponseEntity.badRequest().body("NO BOARD");
+        }
+        return ResponseEntity.ok().body(board.getId() + "change View : " + board.isAdd());
+    }
+
     @PostMapping("/download/{boardId}")
     public ResponseEntity<?> fileDownload(@RequestBody String fileName, @PathVariable("boardId") int boardId) {
         try {
@@ -155,7 +172,7 @@ public class BoardController {
             //String encodeFileName = URLEncoder.encode(binaryFile.getName(),"UTF-8");
             log.info("LEAVE /board/download");
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + binaryFile.getName() + "\"" )
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(binaryFile.getName(),"UTF-8").replaceAll("\\+","%20") + "\"" )
                     .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(binaryFile.length()))
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM.toString())
                     .body(resource);
@@ -181,7 +198,7 @@ public class BoardController {
                     .id(board.getId())
                     .writeDate(board.getCreateDate().toString())
                     .title(board.getTitle())
-                    .writer(memberService.findByid(id).getName())
+                    .writer(board.getMember().getName())
                     .cnt(board.getCnt())
                     .isAdd(board.isAdd())
                     .build();
@@ -203,6 +220,7 @@ public class BoardController {
         List<ReplyListDataResponseDTO> replies = new ArrayList<>();
         for (Board reply : board.getBoards()) {
             ReplyListDataResponseDTO replyDTO = ReplyListDataResponseDTO.builder()
+                    .id(reply.getId())
                     .writer(reply.getMember().getName())
                     .content(reply.getContent())
                     .createDate(reply.getCreateDate().toString())
@@ -278,5 +296,21 @@ public class BoardController {
         }
         return ResponseEntity.ok().body("update reply ok");
     }
+    @PostMapping("/upload-image")
+    public ResponseEntity<?> updateImage(@AuthenticationPrincipal int id ,@RequestParam MultipartFile file) {
+        try {
+            log.info("ENTER /board/upload-image - Accessor : " + memberService.findByid(id).getEmail());
+        } catch (NullPointerException ne) {
+            log.info("USER EXCEPTION /board/upload-image - Accessor : "+memberService.findByid(id).getEmail());
+            return ResponseEntity.ok().body("USER EXCEPTION /board/upload-image - Accessor : "+memberService.findByid(id).getEmail());
+        }
 
+        try{
+            String image = fileService.saveImage(file);
+            log.info("LEAVE /board/upload-image - Accessor : " + memberService.findByid(id).getEmail());
+            return ResponseEntity.ok().body(image);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
