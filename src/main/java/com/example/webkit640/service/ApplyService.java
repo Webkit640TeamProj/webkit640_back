@@ -45,4 +45,8 @@ public class ApplyService {
     public List<Applicant> getDateApplicant(String yearMonth) {
         return applicantRepository.findAllByCreateDateContaining(yearMonth);
     }
+
+    public Applicant getApplicantIdWithNameAndMajorAndSchoolAndSchoolName(String name, String major, String school, String schoolNum) {
+        return applicantRepository.findByNameAndMajorAndSchoolAndSchoolNum(name, major, school, schoolNum);
+    }
 }
