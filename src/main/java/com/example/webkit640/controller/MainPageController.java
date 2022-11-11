@@ -26,14 +26,14 @@ public class MainPageController {
     }
 
     @GetMapping("/data")
-    public ResponseEntity<?> readData(@AuthenticationPrincipal int id) {
+    public ResponseEntity<?> readData() {
         try {
-            log.info("ENTER /main/data - Accessor : "+memberService.findByid(id).getEmail());
+            log.info("ENTER /main/data");
         } catch (NullPointerException ne) {
             return ResponseEntity.badRequest().body("NO USER");
         }
         MainPageEntity entity = mainPageService.getById();
-        log.info("LEAVE /main/data - Accessor : "+memberService.findByid(id).getEmail());
+        log.info("LEAVE /main/data");
         return ResponseEntity.ok().body(entity);
     }
 

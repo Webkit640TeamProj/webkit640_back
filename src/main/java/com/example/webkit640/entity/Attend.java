@@ -26,17 +26,12 @@ public class Attend extends DateAudit{
     private String attendType;
 
     private String exceptionReason;
-
-    @NotNull
     private String attendYear;
-
-    @NotNull
     private String attendMonth;
-
-    @NotNull
+    private String attendDay;
     private String attendTime;
+    private String overAllDate;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "traineeId")
     private Trainee trainee;

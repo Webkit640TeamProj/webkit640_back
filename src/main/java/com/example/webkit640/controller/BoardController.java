@@ -18,14 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -154,8 +152,9 @@ public class BoardController {
         return ResponseEntity.ok().body(board.getId() + "change View : " + board.isAdd());
     }
 
-    @PostMapping("/download/{boardId}")
-    public ResponseEntity<?> fileDownload(@RequestBody String fileName, @PathVariable("boardId") int boardId) {
+    @PostMapping(value = "/download/{boardId}",headers = "HEADER")
+    public ResponseEntity<?> fileDownload(@RequestBody String fileName, @PathVariable("boardId") int boardId, @RequestHeader HttpHeaders request) {
+        log.info(request.getFirst("HEADER"));
         try {
             Board board = boardService.getBoardId(boardId);
             FileEntity file = null;

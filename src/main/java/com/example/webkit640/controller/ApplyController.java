@@ -368,6 +368,11 @@ public class ApplyController {
                     .cardinal(year)
                     .build();
             Trainee saveTrainee = traineeService.saveTrainee(trainee);
+
+            Applicant temp = applyService.getByMemberId(id);
+            temp.setTrainee(saveTrainee);
+            Applicant applicant1 = applyService.saveApplicant(temp);
+
             log.info(saveTrainee.getCardinal());
 
             SaveTraineeResponseDTO saveTraineeResponseDTO = SaveTraineeResponseDTO.builder()

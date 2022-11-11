@@ -25,4 +25,8 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Integer> {
 
     List<Applicant> findAllByCreateDateContaining(String yearMonth);
 
+    @Query("select t from t_applicant t where t.name = ?1 and t.major = ?2 and t.school = ?3 and t.schoolNum = ?4")
+    Applicant findByNameAndMajorAndSchoolAndSchoolNum(String name, String major, String school, String schoolNum);
+
+
 }
