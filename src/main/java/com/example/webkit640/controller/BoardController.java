@@ -27,7 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -152,41 +154,78 @@ public class BoardController {
         return ResponseEntity.ok().body(board.getId() + "change View : " + board.isAdd());
     }
 
-    @PostMapping(value = "/download/{boardId}",headers = "HEADER")
-    public ResponseEntity<?> fileDownload(@RequestBody String fileName, @PathVariable("boardId") int boardId, @RequestHeader HttpHeaders request) {
-        log.info(request.getFirst("HEADER"));
+//    @PostMapping(value = "/download/{boardId}",headers = "HEADER")
+//    public ResponseEntity<?> fileDownload(@RequestBody String fileName, @PathVariable("boardId") int boardId, @RequestHeader HttpHeaders request) {
+//        log.info(request.getFirst("HEADER"));
+//        try {
+//            Board board = boardService.getBoardId(boardId);
+//            FileEntity file = null;
+//            List<FileEntity> files = fileService.findByBoardId(board);
+//            for (FileEntity fe : files) {
+//                if (fe.getFileName().equals(fileName)) {
+//                    file = fe;
+//                }
+//            }
+//
+//            Resource resource = resourceLoader.getResource("file:"+file.getFilePath()+file.getFileName());
+//            File binaryFile = resource.getFile();
+//
+//            //String encodeFileName = URLEncoder.encode(binaryFile.getName(),"UTF-8");
+//            log.info("LEAVE /board/download");
+//            return ResponseEntity.ok()
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(binaryFile.getName(),"UTF-8").replaceAll("\\+","%20") + "\"" )
+//                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(binaryFile.length()))
+//                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM.toString())
+//                    .body(resource);
+//
+//        } catch (FileNotFoundException e) {
+//            log.error("FILE NOT FOUND EXCEPTION /board/download");
+//            log.error(e.getMessage());
+//            return ResponseEntity.badRequest().body(null);
+//        } catch (IOException e) {
+//            log.error("FILE NOT FOUND EXCEPTION /board/download");
+//            log.error(e.getMessage());
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
+    @GetMapping("/download-upload-file")
+    public ResponseEntity<?> downloadUploadFile(@AuthenticationPrincipal int id, @RequestParam int boardId) {
         try {
-            Board board = boardService.getBoardId(boardId);
-            FileEntity file = null;
-            List<FileEntity> files = fileService.findByBoardId(board);
-            for (FileEntity fe : files) {
-                if (fe.getFileName().equals(fileName)) {
-                    file = fe;
-                }
-            }
+            log.info("ENTER /board/download-upload-file - Accessor : " + memberService.findByid(id).getEmail());
+        } catch (NullPointerException ne ) {
+            log.error("NULl EXCEPTION /board/download-upload-file");
+            return ResponseEntity.badRequest().body("NULl EXCEPTION /board/download-upload-file");
+        }
+        Board board = boardService.getBoardId(boardId);
+        List<FileEntity> files = fileService.findByBoardId(board);
+        FileEntity entity = files.get(0);
 
-            Resource resource = resourceLoader.getResource("file:"+file.getFilePath()+file.getFileName());
-            File binaryFile = resource.getFile();
+        Resource resource = resourceLoader.getResource("file:"+entity.getFilePath()+entity.getFileName());
+        File resultFile = null;
+        try {
+            resultFile = resource.getFile();
+        } catch (IOException e) {
+            log.error("IO EXCEPTION /board/download-upload-file - Accessor : " + memberService.findByid(id).getEmail());
+            return ResponseEntity.badRequest().body("IO EXCEPTION /board/download-upload-file - Accessor : " + memberService.findByid(id).getEmail());
+        }
+        log.info("LEAVE /board/download-upload-file - Accessor : " + memberService.findByid(id).getEmail());
+        try {
+            String encodeFileName = new String(resultFile.getName().getBytes("UTF-8"),"ISO-8859-1");
+            log.info(encodeFileName);
+            log.info(resultFile.getName());
+            log.info(URLEncoder.encode((resultFile.getName()),"UTF-8"));
 
-            //String encodeFileName = URLEncoder.encode(binaryFile.getName(),"UTF-8");
-            log.info("LEAVE /board/download");
+            /*URLEncoder.encode(resultFile.getName(),"UTF-8").replaceAll("\\+","%20")*/
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(binaryFile.getName(),"UTF-8").replaceAll("\\+","%20") + "\"" )
-                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(binaryFile.length()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(resultFile.getName(),"UTF-8") + "\"" )
+                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(resultFile.length()))
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM.toString())
                     .body(resource);
-
-        } catch (FileNotFoundException e) {
-            log.error("FILE NOT FOUND EXCEPTION /board/download");
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().body(null);
-        } catch (IOException e) {
-            log.error("FILE NOT FOUND EXCEPTION /board/download");
-            log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (UnsupportedEncodingException e) {
+            log.error("ENCODING EXCEPTION /board/download-upload-file - Accessor : " + memberService.findByid(id).getEmail());
+            return ResponseEntity.badRequest().body("ENCODING EXCEPTION /board/download-upload-file - Accessor : " + memberService.findByid(id).getEmail());
         }
     }
-
     @GetMapping("/list")
     public ResponseEntity<?> getAllListData(@AuthenticationPrincipal int id, @RequestParam String type) {
         log.info("ENTER VIEW ALL BOARD - USER : "+memberService.findByid(id).getEmail());
@@ -213,6 +252,7 @@ public class BoardController {
         List<String> fileNames = new ArrayList<>();
         List<FileEntity> files = fileService.findByBoardId(board);
         for (FileEntity fe : files) {
+            if (fe.getFileType().equals("BOARD"))
             fileNames.add(fe.getFileName());
         }
 
@@ -233,6 +273,7 @@ public class BoardController {
                 .fileNames(fileNames)
                 .content(board.getContent())
                 .title(board.getTitle())
+                .cnt(board.getCnt())
                 .writer(board.getMember().getName())
                 .replies(replies)
                 .build();
