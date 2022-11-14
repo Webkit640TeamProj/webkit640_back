@@ -24,6 +24,7 @@ public class ApplyService {
     public Applicant getByMemberId(int id) {
         return applicantRepository.findByMemberId(id);
     }
+
     public List<Applicant> getSearchApplicant(String type, String keyword) {
 
         //QueryDSL

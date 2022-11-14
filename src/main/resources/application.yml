@@ -17,7 +17,7 @@ spring:
     #database-platform: org.hibernate.dialect.H2Dialect
     generate-ddl: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:

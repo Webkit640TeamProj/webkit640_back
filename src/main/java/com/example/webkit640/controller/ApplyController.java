@@ -6,6 +6,7 @@ import com.example.webkit640.dto.ClientApplicantDTO;
 import com.example.webkit640.dto.FileDTO;
 import com.example.webkit640.dto.request.SearchApplicantRequestDTO;
 import com.example.webkit640.dto.request.SelectApplicantDTO;
+import com.example.webkit640.dto.request.ApplyForcedSelectRequestDTO;
 import com.example.webkit640.dto.response.ApplicantDataResponseDTO;
 import com.example.webkit640.dto.response.ResponseDTO;
 import com.example.webkit640.dto.response.SaveTraineeResponseDTO;
@@ -19,7 +20,6 @@ import com.example.webkit640.service.MemberService;
 import com.example.webkit640.service.TraineeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
@@ -351,7 +351,37 @@ public class ApplyController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+    @PostMapping("/forced-select")
+    public ResponseEntity<?> forcedSelect(@AuthenticationPrincipal int id, @RequestBody ApplyForcedSelectRequestDTO dto) {
+        try {
+            log.info("ENTER /apply/forced-select - Accessor : " + memberService.findByid(id).getEmail());
+            Member member = memberService.findByEmailData(dto.getEmail());
+            log.info(member.getEmail());
+            Applicant applicant = applyService.getByMemberId(member.getId());
+            applicant.setSelect(!applicant.isSelect());
+            Applicant saveApplicant = applyService.saveApplicant(applicant);
 
+            if (saveApplicant.isSelect()) {
+                String year = String.valueOf(LocalDate.now().getYear()%2022+1);
+                Trainee trainee = Trainee.builder()
+                        .applicant(applicant)
+                        .cardinal(year)
+                        .build();
+                Trainee saveTrainee = traineeService.saveTrainee(trainee);
+                saveApplicant.setTrainee(saveTrainee);
+            } else {
+                Trainee trainee = traineeService.getApplicantId(saveApplicant.getId());
+                traineeService.deleteEntity(trainee);
+            }
+            return ResponseEntity.ok().body("OK");
+        } catch (NullPointerException ne) {
+            log.error("NULL EXCEPTION /apply/forced-select");
+            return ResponseEntity.badRequest().body("NULL EXCEPTION /apply/forced-select");
+        } catch (Exception e) {
+            log.error("EXCEPTION /apply/forced-select");
+            return ResponseEntity.badRequest().body("EXCEPTION /apply/forced-select");
+        }
+    }
     @PostMapping("/trainee-select")
     public ResponseEntity<?> traineeSelect(@AuthenticationPrincipal int id) {
         log.info("ENTER /apply/trainee-select - Accessor: "+memberService.findByid(id).getEmail());

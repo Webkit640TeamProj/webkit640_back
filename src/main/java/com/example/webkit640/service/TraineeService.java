@@ -22,6 +22,9 @@ public class TraineeService {
     public Trainee saveTrainee(Trainee trainee) {
         return traineeRepository.save(trainee);
     }
+    public void deleteEntity(Trainee trainee) {
+        traineeRepository.delete(trainee);
+    }
     public List<Trainee> getAllTrainee() {
         return traineeRepository.findAll();
     }

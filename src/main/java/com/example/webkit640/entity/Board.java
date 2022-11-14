@@ -28,9 +28,11 @@ public class Board extends DateAudit {
     private int id;
 
     @NotNull
+    @Column(length = 1000)
     private String title;
 
     @NotNull
+    @Column(length = 10000)
     private String content;
 
     @NotNull

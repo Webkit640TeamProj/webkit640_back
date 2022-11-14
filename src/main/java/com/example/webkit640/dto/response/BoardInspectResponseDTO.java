@@ -19,6 +19,6 @@ public class BoardInspectResponseDTO {
     private String createDate;
     private List<String> fileNames;
     private List<ReplyListDataResponseDTO> replies;
-
+    private int cnt;
 
 }
