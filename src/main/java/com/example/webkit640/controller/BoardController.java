@@ -31,9 +31,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", exposedHeaders = {"Content-Disposition"})
 @RequestMapping("/board")
 @Slf4j
 @RestController
@@ -210,14 +211,14 @@ public class BoardController {
         }
         log.info("LEAVE /board/download-upload-file - Accessor : " + memberService.findByid(id).getEmail());
         try {
-            String encodeFileName = new String(resultFile.getName().getBytes("UTF-8"),"ISO-8859-1");
+            String encodeFileName = new String(resultFile.getName().getBytes("KSC5601"),"ISO-8859-1");
             log.info(encodeFileName);
             log.info(resultFile.getName());
             log.info(URLEncoder.encode((resultFile.getName()),"UTF-8"));
 
             /*URLEncoder.encode(resultFile.getName(),"UTF-8").replaceAll("\\+","%20")*/
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(resultFile.getName(),"UTF-8") + "\"" )
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode((resultFile.getName()),"UTF-8") + "\"" )
                     .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(resultFile.length()))
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM.toString())
                     .body(resource);
@@ -242,8 +243,71 @@ public class BoardController {
                     .build();
             res.add(dto);
         }
+        Collections.reverse(res);
         log.info("LEAVE VIEW ALL BOARD - USER : " + memberService.findByid(id).getEmail());
         return ResponseEntity.ok().body(res);
+    }
+
+    @GetMapping("/list-review")
+    public ResponseEntity<?> getReviewListData(@RequestParam String type) {
+        log.info("ENTER /board/list-review ");
+        List<Board> boards = boardService.getBoardAll(type);
+        List<BoardListDataResponseDTO> res = new ArrayList<>();
+        for (Board board : boards) {
+            BoardListDataResponseDTO dto = BoardListDataResponseDTO.builder()
+                    .id(board.getId())
+                    .writeDate(board.getCreateDate().toString())
+                    .title(board.getTitle())
+                    .writer(board.getMember().getName())
+                    .cnt(board.getCnt())
+                    .isAdd(board.isAdd())
+                    .build();
+            res.add(dto);
+        }
+        Collections.reverse(res);
+        log.info("LEAVE /board/list-review");
+        return ResponseEntity.ok().body(res);
+    }
+
+    @GetMapping("/list-review/{boardId}")
+    public ResponseEntity<?> getInspectReviewBoardData(@PathVariable("boardId") int boardId) {
+        log.info("ENTER /board/list-review/" + boardId);
+        Board board = boardService.getBoardId(boardId);
+        List<String> fileNames = new ArrayList<>();
+        List<FileEntity> files = fileService.findByBoardId(board);
+        for (FileEntity fe : files) {
+            if (fe.getFileType().equals("BOARD"))
+                fileNames.add(fe.getFileName());
+        }
+
+        List<ReplyListDataResponseDTO> replies = new ArrayList<>();
+        for (Board reply : board.getBoards()) {
+            ReplyListDataResponseDTO replyDTO = ReplyListDataResponseDTO.builder()
+                    .id(reply.getId())
+                    .writer(reply.getMember().getName())
+                    .content(reply.getContent())
+                    .createDate(reply.getCreateDate().toString())
+                    .updateDate(reply.getUpdateDate().toString())
+                    .build();
+            replies.add(replyDTO);
+        }
+
+        BoardInspectResponseDTO dto = BoardInspectResponseDTO.builder()
+                .createDate(board.getCreateDate().toString())
+                .fileNames(fileNames)
+                .content(board.getContent())
+                .title(board.getTitle())
+                .cnt(board.getCnt())
+                .writer(board.getMember().getName())
+                .replies(replies)
+                .build();
+
+        int cnt = board.getCnt();
+        cnt+=1;
+        board.setCnt(cnt);
+        boardService.saveBoard(board);
+        log.info("ENTER /board/list-review/" + boardId);
+        return ResponseEntity.ok().body(dto);
     }
     @GetMapping("/list/{boardId}")
     public ResponseEntity<?> getInspectBoardData(@AuthenticationPrincipal int id, @PathVariable("boardId") int boardId) {

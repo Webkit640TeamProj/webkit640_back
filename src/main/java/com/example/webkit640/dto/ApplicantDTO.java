@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ApplicantDTO {
+    private String date;
     private String name;
     private String application;
     private boolean isApply;

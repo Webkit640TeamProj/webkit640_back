@@ -1,5 +1,6 @@
 package com.example.webkit640.controller;
 
+import com.example.webkit640.config.EncryptConfig;
 import com.example.webkit640.config.TokenProvider;
 import com.example.webkit640.dto.LoginDTO;
 import com.example.webkit640.dto.request.MemberRequestDTO;
@@ -26,11 +27,13 @@ import java.util.List;
 public class MemberController {
     private final MemberService userService;
     private final TokenProvider tokenProvider;
+    private final EncryptConfig encryptConfig;
 
     @Autowired
-    public MemberController(MemberService userService, TokenProvider tokenProvider) {
+    public MemberController(MemberService userService, TokenProvider tokenProvider, EncryptConfig encryptConfig) {
         this.userService = userService;
         this.tokenProvider = tokenProvider;
+        this.encryptConfig = encryptConfig;
     }
 
     @PostMapping("/signup")
@@ -46,7 +49,7 @@ public class MemberController {
                         .name(userDTO.getName())
                         .applicant(null)
                         .isAdmin(false)
-                        .password(userDTO.getPassword())
+                        .password(encryptConfig.makeMD5(userDTO.getPassword()))
                         .build();
                 Member registeredMember = userService.createMember(member);
                 log.info("Create User : "+member.getEmail());
@@ -74,7 +77,7 @@ public class MemberController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginDTO loginDTO) {
         log.info("ENTER LOGIN CONTROLLER");
-        Member member = userService.getByCredentials(loginDTO.getEmail(), loginDTO.getPassword());
+        Member member = userService.getByCredentials(loginDTO.getEmail(), encryptConfig.makeMD5(loginDTO.getPassword()));
         if (member != null) {
             final String token = tokenProvider.create(member);
             final LoginDTO responseData = LoginDTO.builder()

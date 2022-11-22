@@ -2,7 +2,10 @@ package com.example.webkit640.controller;
 
 
 import com.example.webkit640.dto.request.MainPageRequestDTO;
+import com.example.webkit640.dto.response.MainPageReviewResponseDTO;
+import com.example.webkit640.entity.Board;
 import com.example.webkit640.entity.MainPageEntity;
+import com.example.webkit640.service.BoardService;
 import com.example.webkit640.service.MainPageService;
 import com.example.webkit640.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @CrossOrigin(origins = "*")
 @RequestMapping("/main")
 @Slf4j
@@ -18,11 +25,37 @@ import org.springframework.web.bind.annotation.*;
 public class MainPageController {
     private final MainPageService mainPageService;
     private final MemberService memberService;
+    private final BoardService boardService;
 
     @Autowired
-    public MainPageController(MainPageService mainPageService, MemberService memberService) {
+    public MainPageController(MainPageService mainPageService, MemberService memberService, BoardService boardService) {
         this.mainPageService = mainPageService;
         this.memberService = memberService;
+        this.boardService = boardService;
+    }
+
+    @GetMapping("/review")
+    public ResponseEntity<?> readReview() {
+        try {
+            log.info("ENTER /main/review");
+        } catch (NullPointerException ne) {
+            log.error("USER NULL /main/review");
+            ResponseEntity.badRequest().body("USER NULL /main/review");
+        }
+        List<Board> reviewBoardAndMainPage = boardService.getReviewBoardAndMainPage();
+        Collections.reverse(reviewBoardAndMainPage);
+        List<Board> makeDtoEntity = new ArrayList<>();
+        for (Board board : reviewBoardAndMainPage) {
+            if (board.isAdd()) {
+                makeDtoEntity.add(board);
+            }
+        }
+        List<MainPageReviewResponseDTO> dto = new ArrayList<>();
+        for (Board board : makeDtoEntity) {
+            MainPageReviewResponseDTO temp = new MainPageReviewResponseDTO(board);
+            dto.add(temp);
+        }
+        return ResponseEntity.ok().body(dto);
     }
 
     @GetMapping("/data")
@@ -60,6 +93,8 @@ public class MainPageController {
             entity.setPassAnnouncementDate(dto.getPassAnnouncementDate());
             entity.setTotalRecruitment(dto.getTotalRecruitment());
             entity.setTrainingStartDate(dto.getTrainingStartDate());
+            entity.setContact(dto.getContact());
+            entity.setImagePath(dto.getImagePath());
 
             MainPageEntity saveData = mainPageService.saveData(entity);
             log.info("LEAVE /main/admin-modify - Accessor : "+memberService.findByid(id).getEmail());
@@ -75,8 +110,10 @@ public class MainPageController {
                     .additionalRecruitmentPeriod(dto.getAdditionalRecruitmentPeriod())
                     .eligibility(dto.getEligibility())
                     .nonMajor(dto.getNonMajor())
+                    .contact(dto.getContact())
                     .passAnnouncementDate(dto.getPassAnnouncementDate())
                     .recruitmentDate(dto.getRecruitmentDate())
+                    .imagePath(dto.getImagePath())
                     .build();
             MainPageEntity saveData = mainPageService.saveData(entity);
             log.info("LEAVE /main/admin-modify - Accessor : "+memberService.findByid(id).getEmail());
