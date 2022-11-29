@@ -52,5 +52,10 @@ public class MainPageEntity extends DateAudit{
     //비전공자 수
     private String nonMajor;
 
+    //조교 연락처
+    private String contact;
+
+    //팝업 이미지 저장
+    private String imagePath;
 
 }

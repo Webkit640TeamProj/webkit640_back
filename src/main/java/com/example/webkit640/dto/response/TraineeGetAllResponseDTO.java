@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Data
 public class TraineeGetAllResponseDTO {
+    private String date;
     private String name;
     private String schoolNumber;
     private String major;
@@ -20,6 +21,7 @@ public class TraineeGetAllResponseDTO {
 
     public static TraineeGetAllResponseDTO entityToDTO(Trainee trainee) {
         return TraineeGetAllResponseDTO.builder()
+                .date(trainee.getUpdateDate())
                 .name(trainee.getApplicant().getName())
                 .schoolNumber(trainee.getApplicant().getSchoolNum())
                 .major(trainee.getApplicant().getMajor())

@@ -8,6 +8,7 @@ import com.example.webkit640.dto.request.SearchApplicantRequestDTO;
 import com.example.webkit640.dto.request.SelectApplicantDTO;
 import com.example.webkit640.dto.request.ApplyForcedSelectRequestDTO;
 import com.example.webkit640.dto.response.ApplicantDataResponseDTO;
+import com.example.webkit640.dto.response.ApplicantMemberApplicantResponseDTO;
 import com.example.webkit640.dto.response.ResponseDTO;
 import com.example.webkit640.dto.response.SaveTraineeResponseDTO;
 import com.example.webkit640.entity.Applicant;
@@ -57,6 +58,28 @@ public class ApplyController {
         this.memberService = memberService;
         this.resourceLoader = resourceLoader;
         this.traineeService = traineeService;
+    }
+
+    @GetMapping("/member-applicant")
+    public ResponseEntity<?> memberApplicant(@AuthenticationPrincipal int id) {
+        try{
+            log.info("ENTER /apply/member-applicant - Accessor : " + memberService.findByid(id).getEmail());
+        } catch (NullPointerException ne) {
+            log.error("USER NULL EXCEPTION");
+            return ResponseEntity.badRequest().body("USER NULL EXCEPTION");
+        }
+        Applicant applicant = null;
+        ApplicantMemberApplicantResponseDTO dto = null;
+        try {
+            applicant = memberService.findByid(id).getApplicant();
+            dto = ApplicantMemberApplicantResponseDTO.entityToDTO(applicant);
+        } catch (NullPointerException ne) {
+            log.error("APPLICANT NULL EXCEPTION - Accessor : " + memberService.findByid(id).getEmail());
+            return ResponseEntity.badRequest().body("APPLICANT NULL EXCEPTION");
+        }
+
+        log.info("LEAVE /apply/member-applicant - Accessor : " + memberService.findByid(id).getEmail());
+        return ResponseEntity.ok().body(dto);
     }
 
     @PostMapping("/applicant-data")
@@ -326,6 +349,7 @@ public class ApplyController {
                     }
                 }
                 ApplicantDTO dto = ApplicantDTO.builder()
+                        .date(temp.getUpdateDate())
                         .email(temp.getMember().getEmail())
                         .name(temp.getName())
                         .application(temp.getApplication())

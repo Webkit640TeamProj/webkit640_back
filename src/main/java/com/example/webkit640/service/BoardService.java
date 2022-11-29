@@ -96,4 +96,8 @@ public class BoardService {
     public List<Board> getByWriter(int writerId) {
         return boardRepository.findByMember_Id(writerId);
     }
+
+    public List<Board> getReviewBoardAndMainPage() {
+        return boardRepository.findByBoardType("review");
+    }
 }
