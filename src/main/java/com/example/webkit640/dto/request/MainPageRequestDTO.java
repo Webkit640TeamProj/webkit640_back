@@ -48,4 +48,10 @@ public class MainPageRequestDTO {
 
     //팝업 이미지 저장
     private String imagePath;
+
+    //취업 비율 저장
+    private String employmentRate;
+
+    //취업 비율 표시여부
+    private Boolean showEmployment;
 }

@@ -58,4 +58,10 @@ public class MainPageEntity extends DateAudit{
     //팝업 이미지 저장
     private String imagePath;
 
+    //취업생 퍼센트 저장
+    private String employmentRate;
+
+    //취업 비율 화면표시 여부
+    private Boolean showEmployment;
+
 }
