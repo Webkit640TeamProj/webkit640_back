@@ -95,6 +95,8 @@ public class MainPageController {
             entity.setTrainingStartDate(dto.getTrainingStartDate());
             entity.setContact(dto.getContact());
             entity.setImagePath(dto.getImagePath());
+            entity.setEmploymentRate(dto.getEmploymentRate());
+            entity.setShowEmployment(dto.getShowEmployment());
 
             MainPageEntity saveData = mainPageService.saveData(entity);
             log.info("LEAVE /main/admin-modify - Accessor : "+memberService.findByid(id).getEmail());
@@ -114,6 +116,8 @@ public class MainPageController {
                     .passAnnouncementDate(dto.getPassAnnouncementDate())
                     .recruitmentDate(dto.getRecruitmentDate())
                     .imagePath(dto.getImagePath())
+                    .employmentRate(dto.getEmploymentRate())
+                    .showEmployment(dto.getShowEmployment())
                     .build();
             MainPageEntity saveData = mainPageService.saveData(entity);
             log.info("LEAVE /main/admin-modify - Accessor : "+memberService.findByid(id).getEmail());
