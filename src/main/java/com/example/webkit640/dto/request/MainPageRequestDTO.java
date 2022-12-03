@@ -54,4 +54,7 @@ public class MainPageRequestDTO {
 
     //취업 비율 표시여부
     private Boolean showEmployment;
+
+    //취업 기업 String
+    private String employmentEnterprise;
 }
