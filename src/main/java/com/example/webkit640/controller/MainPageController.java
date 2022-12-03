@@ -97,6 +97,7 @@ public class MainPageController {
             entity.setImagePath(dto.getImagePath());
             entity.setEmploymentRate(dto.getEmploymentRate());
             entity.setShowEmployment(dto.getShowEmployment());
+            entity.setEmploymentEnterprise(dto.getEmploymentEnterprise());
 
             MainPageEntity saveData = mainPageService.saveData(entity);
             log.info("LEAVE /main/admin-modify - Accessor : "+memberService.findByid(id).getEmail());
@@ -118,6 +119,7 @@ public class MainPageController {
                     .imagePath(dto.getImagePath())
                     .employmentRate(dto.getEmploymentRate())
                     .showEmployment(dto.getShowEmployment())
+                    .employmentEnterprise(dto.getEmploymentEnterprise())
                     .build();
             MainPageEntity saveData = mainPageService.saveData(entity);
             log.info("LEAVE /main/admin-modify - Accessor : "+memberService.findByid(id).getEmail());

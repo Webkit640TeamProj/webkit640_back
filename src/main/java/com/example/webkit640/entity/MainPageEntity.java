@@ -64,4 +64,7 @@ public class MainPageEntity extends DateAudit{
     //취업 비율 화면표시 여부
     private Boolean showEmployment;
 
+    //취업 기업 String
+    private String employmentEnterprise;
+
 }
