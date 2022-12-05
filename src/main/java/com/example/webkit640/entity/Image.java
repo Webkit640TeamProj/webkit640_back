@@ -24,10 +24,7 @@ public class Image extends DateAudit {
 
     @NotNull
     @Column(length = 1000)
-    private String imageName;
-
-    @NotNull
-    private String imageExtension;
+    private String title;
 
     @JsonIgnore
     @NotNull

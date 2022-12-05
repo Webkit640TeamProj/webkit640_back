@@ -4,15 +4,14 @@ import com.example.webkit640.dto.request.BoardRequestDTO;
 import com.example.webkit640.dto.request.ModifiedBoardRequestDTO;
 import com.example.webkit640.dto.request.ModifiedReplyDTO;
 import com.example.webkit640.dto.request.ReplyRequestDTO;
-import com.example.webkit640.dto.response.BoardImageResponseDTO;
-import com.example.webkit640.dto.response.BoardInspectResponseDTO;
-import com.example.webkit640.dto.response.BoardListDataResponseDTO;
-import com.example.webkit640.dto.response.ReplyListDataResponseDTO;
+import com.example.webkit640.dto.response.*;
 import com.example.webkit640.entity.Board;
 import com.example.webkit640.entity.FileEntity;
+import com.example.webkit640.entity.Image;
 import com.example.webkit640.entity.Member;
 import com.example.webkit640.service.BoardService;
 import com.example.webkit640.service.FileService;
+import com.example.webkit640.service.ImageService;
 import com.example.webkit640.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +22,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,13 +39,16 @@ public class BoardController {
     private final MemberService memberService;
     private final BoardService boardService;
     private final FileService fileService;
+
+    private final ImageService imageService;
     private final ResourceLoader resourceLoader;
 
     @Autowired
-    public BoardController(MemberService memberService, BoardService boardService, FileService fileService, ResourceLoader resourceLoader) {
+    public BoardController(MemberService memberService, BoardService boardService, FileService fileService, ImageService imageService, ResourceLoader resourceLoader) {
         this.memberService = memberService;
         this.boardService = boardService;
         this.fileService = fileService;
+        this.imageService = imageService;
         this.resourceLoader = resourceLoader;
     }
 
@@ -417,4 +416,64 @@ public class BoardController {
             throw new RuntimeException(e);
         }
     }
+
+    @PostMapping("/save-onlyimage") //이미지경로 db에 저장
+    public ResponseEntity<?> saveOnlyImage(@AuthenticationPrincipal int id ,@RequestParam String imagePath, @RequestParam String title) {
+        log.info("ENTER USER UPLOAD ONLY IMAGE - Writer : "+memberService.findByid(id).getEmail());
+        try {
+            Image img = imageService.ImageSave(imagePath, memberService.findByid(id), title);
+            if (img != null) {
+                log.info("LEAVE USER UPLOAD ONLY IMAGE - Writer : "+memberService.findByid(id).getEmail());
+                return ResponseEntity.ok().body("upload ok");
+            } else {
+                log.error("EXCEPTION USER UPLOAD ONLY IMAGE - Writer : "+memberService.findByid(id).getEmail());
+                throw new RuntimeException();
+            }
+        } catch (IOException ie) {
+            log.error("EXCEPTION USER UPLOAD ONLY IMAGE - Writer : "+memberService.findByid(id).getEmail());
+            log.error("EXCEPTION : "+ie.getStackTrace());
+            throw new RuntimeException();
+        }
+    }
+
+    @GetMapping("list-image") // 이미지 리스트 조회
+    public ResponseEntity<?> getImageList() {
+        List<Image> images = imageService.getImageAll();
+        List<ImageListDateDTO> res = new ArrayList<>();
+        for (Image image : images) {
+            ImageListDateDTO dto = ImageListDateDTO.builder()
+                    .id(image.getId())
+                    .writeDate(image.getCreateDate().toString())
+                    .title(image.getTitle())
+                    .writer(image.getMember().getName())
+                    .build();
+            res.add(dto);
+        }
+        Collections.reverse(res);
+        return ResponseEntity.ok().body(res);
+    }
+
+    @GetMapping("/list-image/{imageId}") //이미지 상세조회
+    public ResponseEntity<?> getInspectImageData(@PathVariable("imageId") int imageId) {
+        Image image = imageService.getImageId(imageId);
+        ImageInspectResponseDTO dto = ImageInspectResponseDTO.builder()
+                .createDate(image.getCreateDate().toString())
+                .title(image.getTitle())
+                .writer(image.getMember().getName())
+                .imagePath(image.getImagePath())
+                .build();
+        imageService.saveImage(image);
+        return ResponseEntity.ok().body(dto);
+    }
+
+    @DeleteMapping("/delete-image/{imageId}") //이미지 삭제
+    public ResponseEntity<?> deleteImage(@AuthenticationPrincipal int id, @PathVariable("imageId") int imageId ) {
+        Image image = imageService.getImageId(imageId);
+        if(image.getMember().getId() == id) {
+            imageService.deleteImage(imageId);
+        }
+        return ResponseEntity.ok().body("delete ok");
+    }
+
+
 }
