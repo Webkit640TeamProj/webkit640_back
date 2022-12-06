@@ -25,11 +25,14 @@ spring:
 
 file:
   #dir: /Users/songmingyu/Webkit/
-  dir: /root/Webkit/
+  dir: C:\Users\rkdtmddn\Desktop\Webkit\
+  #dir: /root/Webkit/
   #imageResourcePath: file:/Users/songmingyu/Webkit/uploadImage/
-  imageResourcePath: file:/root/Webkit/uploadImage/
+  imageResourcePath: file:C:\Users\rkdtmddn\Desktop\Webkit\uploadImage\
+  #imageResourcePath: file:/root/Webkit/uploadImage/
   #imageUploadPath: /Users/songmingyu/Webkit/uploadImage/
-  imageUploadPath: /root/Webkit/uploadImage/
+  imageUploadPath: C:\Users\rkdtmddn\Desktop\Webkit\uploadImage\
+  #imageUploadPath: /root/Webkit/uploadImage/
   connectPath: /imagePath/**
 logging:
   pattern:

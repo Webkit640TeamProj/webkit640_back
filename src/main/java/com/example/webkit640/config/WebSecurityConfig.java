@@ -47,7 +47,9 @@ public class WebSecurityConfig {
                 .antMatchers("/*","/h2-console/**","/auth/**", "/board/download/**"
                         , "/imagePath/**","/main/**"
                         ,"/board/list-review",
-                        "/board/list-review/**").permitAll()
+                        "/board/list-review/**",
+                        "/board/list-image/",
+                        "/board/list-image/**").permitAll()
                 .anyRequest()
                 .authenticated();
         http.exceptionHandling()
