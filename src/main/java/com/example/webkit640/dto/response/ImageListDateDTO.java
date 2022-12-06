@@ -15,4 +15,5 @@ public class ImageListDateDTO {
     private String writer;
     private String writeDate;
     private int cnt;
+    private String imagePath;
 }

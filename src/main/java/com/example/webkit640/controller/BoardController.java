@@ -443,6 +443,7 @@ public class BoardController {
         for (Image image : images) {
             ImageListDateDTO dto = ImageListDateDTO.builder()
                     .id(image.getId())
+                    .imagePath(image.getImagePath())
                     .writeDate(image.getCreateDate().toString())
                     .title(image.getTitle())
                     .writer(image.getMember().getName())
