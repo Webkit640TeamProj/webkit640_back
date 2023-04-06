@@ -11,7 +11,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/Webkit?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
     username: root
-    password: alsrb!5606
+    password: ****
   jpa:
     #database-platform: org.hibernate.dialect.H2Dialect
     generate-ddl: true
