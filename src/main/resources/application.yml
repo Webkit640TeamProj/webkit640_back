@@ -25,7 +25,6 @@ spring:
 file:
   dir: /root/Webkit/
   imageResourcePath: file:/root/Webkit/uploadImage/
-  imageUploadPath: /Users/songmingyu/Webkit/uploadImage/
   imageUploadPath: /root/Webkit/uploadImage/
   connectPath: /imagePath/**
 logging:
