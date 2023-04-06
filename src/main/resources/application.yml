@@ -11,7 +11,6 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/Webkit?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
     username: root
-    #password: webkit640!@
     password: alsrb!5606
   jpa:
     #database-platform: org.hibernate.dialect.H2Dialect
@@ -24,15 +23,10 @@ spring:
         format_sql: false
 
 file:
-  dir: /Users/songmingyu/Webkit/
-  #dir: C:\Users\rkdtmddn\Desktop\Webkit\
-  #dir: /root/Webkit/
-  imageResourcePath: file:/Users/songmingyu/Webkit/uploadImage/
-  #imageResourcePath: file:C:\Users\rkdtmddn\Desktop\Webkit\uploadImage\
-  #imageResourcePath: file:/root/Webkit/uploadImage/
+  dir: /root/Webkit/
+  imageResourcePath: file:/root/Webkit/uploadImage/
   imageUploadPath: /Users/songmingyu/Webkit/uploadImage/
-  #imageUploadPath: C:\Users\rkdtmddn\Desktop\Webkit\uploadImage\
-  #imageUploadPath: /root/Webkit/uploadImage/
+  imageUploadPath: /root/Webkit/uploadImage/
   connectPath: /imagePath/**
 logging:
   pattern:
